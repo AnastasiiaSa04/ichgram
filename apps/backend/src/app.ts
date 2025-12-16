@@ -5,6 +5,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import { httpLogger } from './config/logger';
 import { env } from './config/env';
+import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
 const app: Application = express();
 
@@ -43,12 +44,9 @@ app.get('/health', (req, res) => {
 // app.use('/api', routes);
 
 // 404 handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    statusCode: 404,
-    message: `Route ${req.method} ${req.url} not found`,
-  });
-});
+app.use(notFoundHandler);
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 export default app;
