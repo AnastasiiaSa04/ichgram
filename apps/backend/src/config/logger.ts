@@ -1,5 +1,6 @@
 import pino from 'pino';
-import pinoHttp from 'pino-http';
+import pinoHttp, { HttpLogger } from 'pino-http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { env } from './env';
 
 const isDevelopment = env.NODE_ENV === 'development';
@@ -37,20 +38,23 @@ export const logger = pino({
   },
 });
 
-export const httpLogger = pinoHttp({
+export const httpLogger: HttpLogger = pinoHttp({
   logger,
-  customLogLevel: (res, err) => {
-    if (res.statusCode >= 400 && res.statusCode < 500) {
+  customLogLevel: (req: IncomingMessage, res: ServerResponse, err?: Error) => {
+    const statusCode = res.statusCode || 500;
+    if (statusCode >= 400 && statusCode < 500) {
       return 'warn';
-    } else if (res.statusCode >= 500 || err) {
+    } else if (statusCode >= 500 || err) {
       return 'error';
     }
     return isDevelopment ? 'debug' : 'info';
   },
-  customSuccessMessage: (res) => {
-    return `${res.statusCode} - ${res.req.method} ${res.req.url}`;
+  customSuccessMessage: (req: IncomingMessage, res: ServerResponse) => {
+    const statusCode = res.statusCode || 200;
+    return `${statusCode} - ${req.method} ${req.url}`;
   },
-  customErrorMessage: (err, res) => {
-    return `${res.statusCode} - ${res.req.method} ${res.req.url} - ${err.message}`;
+  customErrorMessage: (req: IncomingMessage, res: ServerResponse, err: Error) => {
+    const statusCode = res.statusCode || 500;
+    return `${statusCode} - ${req.method} ${req.url} - ${err.message}`;
   },
 });
