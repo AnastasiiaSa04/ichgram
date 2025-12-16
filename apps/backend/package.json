@@ -1,8 +1,8 @@
 {
-  "name": "@instagram-clone/backend",
+  "name": "@ichgram/backend",
   "version": "1.0.0",
   "private": true,
-  "description": "Backend API for Instagram Clone",
+  "description": "Backend API for ichgram",
   "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon",

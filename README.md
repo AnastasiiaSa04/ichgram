@@ -1,4 +1,4 @@
-# Instagram Clone - Full Stack Application
+# ichgram - Full Stack Application
 
 Monorepo with backend API and frontend application for Instagram-like social network.
 
@@ -21,7 +21,7 @@ Monorepo with backend API and frontend application for Instagram-like social net
 1. Clone the repository
 ```bash
 git clone <repo-url>
-cd instagram-clone
+cd ichgram
 ```
 
 2. Install dependencies
