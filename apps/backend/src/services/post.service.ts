@@ -1,6 +1,7 @@
 import { Post, IPost } from '../models/Post.model';
 import { NotFoundError, ForbiddenError } from '../utils/ApiError';
 import mongoose, { FlattenMaps } from 'mongoose';
+import { LikeService } from './like.service';
 
 interface CreatePostData {
   author: string;
@@ -84,7 +85,7 @@ export class PostService {
     };
 
     if (currentUserId) {
-      postWithDetails.isLiked = false;
+      postWithDetails.isLiked = await LikeService.checkUserLiked(postId, currentUserId);
     }
 
     return postWithDetails;
