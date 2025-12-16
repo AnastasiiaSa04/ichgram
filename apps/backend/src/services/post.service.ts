@@ -16,6 +16,24 @@ interface UpdatePostData {
 
 type LeanPost = FlattenMaps<IPost> & { _id: mongoose.Types.ObjectId };
 
+interface PopulatedAuthor {
+  _id: mongoose.Types.ObjectId;
+  username: string;
+  avatar?: string;
+}
+
+interface PopulatedPost {
+  _id: mongoose.Types.ObjectId;
+  author: PopulatedAuthor;
+  images: string[];
+  caption?: string;
+  location?: string;
+  likesCount: number;
+  commentsCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 interface PostWithDetails {
   _id: mongoose.Types.ObjectId;
   author: {
@@ -40,9 +58,9 @@ export class PostService {
   }
 
   static async getPostById(postId: string, currentUserId?: string): Promise<PostWithDetails> {
-    const post = await Post.findById(postId)
+    const post = (await Post.findById(postId)
       .populate('author', 'username avatar')
-      .lean();
+      .lean()) as PopulatedPost | null;
 
     if (!post) {
       throw new NotFoundError('Post');

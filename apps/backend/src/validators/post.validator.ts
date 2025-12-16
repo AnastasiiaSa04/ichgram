@@ -1,17 +1,6 @@
 import Joi from 'joi';
 
 export const createPostSchema = Joi.object({
-  images: Joi.array()
-    .items(Joi.string().uri())
-    .min(1)
-    .max(10)
-    .required()
-    .messages({
-      'array.min': 'At least one image is required',
-      'array.max': 'Maximum 10 images allowed',
-      'any.required': 'Images are required',
-    }),
-
   caption: Joi.string().max(2200).optional().allow('').messages({
     'string.max': 'Caption must not exceed 2200 characters',
   }),

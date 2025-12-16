@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utils/ApiError';
 import { logger } from '../config/logger';
 import { env } from '../config/env';
+import mongoose from 'mongoose';
 
 export const errorHandler = (
   err: Error,
@@ -11,7 +12,10 @@ export const errorHandler = (
 ) => {
   let error = err;
 
-  if (!(error instanceof ApiError)) {
+  if (err instanceof mongoose.Error.CastError) {
+    const message = 'Invalid ID format';
+    error = new ApiError(400, message, true, err.stack);
+  } else if (!(error instanceof ApiError)) {
     const statusCode = 500;
     const message = error.message || 'Internal Server Error';
     error = new ApiError(statusCode, message, false, err.stack);

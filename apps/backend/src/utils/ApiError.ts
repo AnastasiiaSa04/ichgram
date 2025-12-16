@@ -33,6 +33,12 @@ export class AuthorizationError extends ApiError {
   }
 }
 
+export class ForbiddenError extends ApiError {
+  constructor(message: string = 'Forbidden') {
+    super(403, message);
+  }
+}
+
 export class NotFoundError extends ApiError {
   constructor(resource: string) {
     super(404, `${resource} not found`);
