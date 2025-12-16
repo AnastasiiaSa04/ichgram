@@ -6,6 +6,7 @@ import xss from 'xss-clean';
 import { httpLogger } from './config/logger';
 import { env } from './config/env';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
+import routes from './routes';
 
 const app: Application = express();
 
@@ -40,8 +41,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes will be added here
-// app.use('/api', routes);
+// API routes
+app.use('/api', routes);
 
 // 404 handler
 app.use(notFoundHandler);
