@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { IUser } from '../models/User.model';
 import { env } from '../config/env';
 import { AuthenticationError } from '../utils/ApiError';
@@ -19,7 +19,7 @@ export class TokenService {
 
     return jwt.sign(payload, env.JWT_SECRET, {
       expiresIn: env.JWT_ACCESS_EXPIRE,
-    });
+    } as SignOptions);
   }
 
   static generateRefreshToken(user: IUser): string {
@@ -31,7 +31,7 @@ export class TokenService {
 
     return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
       expiresIn: env.JWT_REFRESH_EXPIRE,
-    });
+    } as SignOptions);
   }
 
   static verifyAccessToken(token: string): TokenPayload {

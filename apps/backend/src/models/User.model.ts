@@ -69,9 +69,7 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-// Indexes
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
+// Additional indexes (email and username already have unique indexes from schema)
 userSchema.index({ isDeleted: 1 });
 userSchema.index({ createdAt: -1 });
 
@@ -89,7 +87,7 @@ userSchema.pre('save', async function (next) {
 });
 
 // Filter deleted documents
-userSchema.pre(/^find/, function (next) {
+userSchema.pre(/^find/, function (this: any, next) {
   this.where({ isDeleted: { $ne: true } });
   next();
 });

@@ -117,6 +117,8 @@ describe('AuthService', () => {
       const registerResult = await AuthService.register(userData);
       const oldRefreshToken = registerResult.tokens.refreshToken;
 
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const result = await AuthService.refreshToken(oldRefreshToken);
 
       expect(result).toHaveProperty('user');
