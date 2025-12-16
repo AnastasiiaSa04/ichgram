@@ -1,0 +1,36 @@
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  roots: ['<rootDir>/src'],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
+    '!src/**/*.interface.ts',
+    '!src/__tests__/**',
+    '!src/server.ts',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  moduleNameMapper: {
+    '^@/config/(.*)$': '<rootDir>/src/config/$1',
+    '^@/controllers/(.*)$': '<rootDir>/src/controllers/$1',
+    '^@/services/(.*)$': '<rootDir>/src/services/$1',
+    '^@/models/(.*)$': '<rootDir>/src/models/$1',
+    '^@/routes/(.*)$': '<rootDir>/src/routes/$1',
+    '^@/middlewares/(.*)$': '<rootDir>/src/middlewares/$1',
+    '^@/validators/(.*)$': '<rootDir>/src/validators/$1',
+    '^@/dto/(.*)$': '<rootDir>/src/dto/$1',
+    '^@/types/(.*)$': '<rootDir>/src/types/$1',
+    '^@/utils/(.*)$': '<rootDir>/src/utils/$1',
+    '^@/sockets/(.*)$': '<rootDir>/src/sockets/$1',
+  },
+  testTimeout: 10000,
+};
