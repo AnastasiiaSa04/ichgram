@@ -1,6 +1,6 @@
 import { User, IUser } from '../models/User.model';
 import { NotFoundError } from '../utils/ApiError';
-import mongoose from 'mongoose';
+import mongoose, { FlattenMaps } from 'mongoose';
 
 interface UpdateProfileData {
   fullName?: string;
@@ -8,7 +8,17 @@ interface UpdateProfileData {
   avatar?: string;
 }
 
-interface UserProfile extends Omit<IUser, 'password'> {
+type LeanUser = FlattenMaps<IUser> & { _id: mongoose.Types.ObjectId };
+
+interface UserProfile {
+  _id: mongoose.Types.ObjectId;
+  username: string;
+  email: string;
+  fullName?: string;
+  bio?: string;
+  avatar?: string;
+  createdAt: Date;
+  updatedAt: Date;
   postsCount: number;
   followersCount: number;
   followingCount: number;
@@ -16,14 +26,14 @@ interface UserProfile extends Omit<IUser, 'password'> {
 }
 
 export class UserService {
-  static async getUserById(userId: string): Promise<IUser> {
+  static async getUserById(userId: string): Promise<LeanUser> {
     const user = await User.findById(userId).select('-password').lean();
 
     if (!user) {
       throw new NotFoundError('User');
     }
 
-    return user as IUser;
+    return user;
   }
 
   static async updateProfile(userId: string, data: UpdateProfileData): Promise<IUser> {
@@ -43,7 +53,7 @@ export class UserService {
   static async getUserProfile(
     userId: string,
     currentUserId?: string
-  ): Promise<Partial<UserProfile>> {
+  ): Promise<UserProfile> {
     const user = await User.findById(userId).select('-password').lean();
 
     if (!user) {
@@ -59,16 +69,28 @@ export class UserService {
       isFollowing = false;
     }
 
-    return {
-      ...user,
+    const userProfile: UserProfile = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      bio: user.bio,
+      avatar: user.avatar,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
       postsCount,
       followersCount,
       followingCount,
       isFollowing,
-    } as Partial<UserProfile>;
+    };
+
+    return userProfile;
   }
 
-  static async searchUsers(query: string, limit: number = 10): Promise<IUser[]> {
+  static async searchUsers(
+    query: string,
+    limit: number = 10
+  ): Promise<Array<{ username: string; fullName?: string; avatar?: string; _id: mongoose.Types.ObjectId }>> {
     const users = await User.find({
       $or: [
         { username: { $regex: query, $options: 'i' } },
@@ -79,7 +101,7 @@ export class UserService {
       .limit(limit)
       .lean();
 
-    return users as IUser[];
+    return users;
   }
 
   static async updateAvatar(userId: string, avatarUrl: string): Promise<IUser> {
