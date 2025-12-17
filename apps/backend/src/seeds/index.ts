@@ -6,6 +6,8 @@ import { Follow } from '../models/Follow.model';
 import { Comment } from '../models/Comment.model';
 import { Like } from '../models/Like.model';
 import { CommentLike } from '../models/CommentLike.model';
+import { Conversation } from '../models/Conversation.model';
+import { Message } from '../models/Message.model';
 
 const log = (msg: string) => console.log(`[seed] ${msg}`);
 
@@ -125,6 +127,49 @@ const SAMPLE_LOCATIONS = [
   'Vienna, Austria',
   'Stockholm, Sweden',
   'Copenhagen, Denmark',
+];
+
+const SAMPLE_MESSAGES = [
+  'Hey! How are you?',
+  'What are you up to?',
+  'Did you see that post?',
+  'Haha that\'s hilarious! 😂',
+  'Thanks for sharing!',
+  'Great to hear from you!',
+  'Let\'s catch up soon',
+  'I saw your latest post, amazing!',
+  'When are you free?',
+  'That sounds fun!',
+  'I\'m doing well, thanks for asking',
+  'What do you think?',
+  'Absolutely!',
+  'No way! 😮',
+  'That\'s so cool!',
+  'I totally agree',
+  'See you later!',
+  'Have a great day! ☀️',
+  'Good morning! 🌅',
+  'Sweet dreams! 😴',
+  'Count me in!',
+  'Sounds like a plan',
+  'Let me know when',
+  'I\'ll check it out',
+  'Thanks! You too!',
+  'Really appreciate it',
+  'Can\'t wait!',
+  'Perfect timing',
+  'You\'re the best! 🙌',
+  'Talk to you soon',
+  'By the way...',
+  'Quick question',
+  'Got it, thanks!',
+  'Sending you good vibes',
+  'Hope you have a great weekend',
+  'Take care! ❤️',
+  'That made my day!',
+  'You always know what to say',
+  'Miss you!',
+  'Thinking of you',
 ];
 
 const users = [
@@ -349,6 +394,72 @@ async function seed() {
       });
     }
 
+    const conversations: { participants: mongoose.Types.ObjectId[] }[] = [];
+    const conversationSet = new Set<string>();
+    
+    for (const user of createdUsers) {
+      const numConversations = randomInt(2, 8);
+      const otherUsers = shuffleArray(createdUsers.filter(u => u._id.toString() !== user._id.toString()));
+      
+      for (let i = 0; i < Math.min(numConversations, otherUsers.length); i++) {
+        const participants = [user._id, otherUsers[i]._id].sort((a, b) => a.toString().localeCompare(b.toString()));
+        const key = participants.map(p => p.toString()).join('-');
+        
+        if (!conversationSet.has(key)) {
+          conversationSet.add(key);
+          conversations.push({
+            participants,
+          });
+        }
+      }
+    }
+    
+    const createdConversations = await Conversation.insertMany(conversations);
+    log(`Created ${createdConversations.length} conversations`);
+
+    const messages: { 
+      conversation: mongoose.Types.ObjectId; 
+      sender: mongoose.Types.ObjectId; 
+      content: string; 
+      isRead: boolean;
+      createdAt: Date;
+    }[] = [];
+    
+    for (const conversation of createdConversations) {
+      const numMessages = randomInt(5, 20);
+      const [user1, user2] = conversation.participants;
+      
+      for (let i = 0; i < numMessages; i++) {
+        const sender = i % 2 === 0 ? user1 : user2;
+        const messageTime = new Date(Date.now() - randomInt(0, 14 * 24 * 60 * 60 * 1000) + i * 60000);
+        
+        messages.push({
+          conversation: conversation._id,
+          sender,
+          content: randomItem(SAMPLE_MESSAGES),
+          isRead: Math.random() > 0.3,
+          createdAt: messageTime,
+        });
+      }
+    }
+    
+    const createdMessages = await Message.insertMany(messages);
+    log(`Created ${createdMessages.length} messages`);
+
+    for (const conversation of createdConversations) {
+      const conversationMessages = createdMessages
+        .filter(m => m.conversation.toString() === conversation._id.toString())
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      
+      if (conversationMessages.length > 0) {
+        const lastMsg = conversationMessages[0];
+        await Conversation.findByIdAndUpdate(conversation._id, {
+          lastMessage: lastMsg._id,
+          lastMessageAt: lastMsg.createdAt,
+        });
+      }
+    }
+
     log('');
     log('✅ Seeding completed successfully!');
     log('');
@@ -359,6 +470,8 @@ async function seed() {
     log(`   Comments: ${createdComments.length}`);
     log(`   Comment likes: ${commentLikes.length}`);
     log(`   Follows: ${follows.length}`);
+    log(`   Conversations: ${createdConversations.length}`);
+    log(`   Messages: ${createdMessages.length}`);
     log('');
     log('🔑 Test accounts (password: Password123!):');
     log('   john@example.com');
