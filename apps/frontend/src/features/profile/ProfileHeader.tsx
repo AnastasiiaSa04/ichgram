@@ -23,7 +23,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
         <Avatar className="w-36 h-36">
           <AvatarImage src={getImageUrl(profile.avatar)} alt={profile.username} />
           <AvatarFallback className="text-4xl">
-            {profile.username[0].toUpperCase()}
+            {profile.username?.[0]?.toUpperCase() ?? '?'}
           </AvatarFallback>
         </Avatar>
       </div>

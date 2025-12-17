@@ -14,7 +14,7 @@ interface SearchUsersParams {
 
 export const usersApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getUserProfile: builder.query<ApiSuccessResponse<UserProfile>, string>({
+    getUserProfile: builder.query<ApiSuccessResponse<{ user: UserProfile }>, string>({
       query: (username) => `/users/${username}`,
       providesTags: (_result, _error, username) => [{ type: 'User', id: username }],
     }),

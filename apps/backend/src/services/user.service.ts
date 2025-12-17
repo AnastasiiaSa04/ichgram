@@ -52,14 +52,18 @@ export class UserService {
   }
 
   static async getUserProfile(
-    userId: string,
+    identifier: string,
     currentUserId?: string
   ): Promise<UserProfile> {
-    const user = await User.findById(userId).select('-password').lean();
+    const isObjectId = mongoose.Types.ObjectId.isValid(identifier);
+    const query = isObjectId ? { _id: identifier } : { username: identifier };
+    const user = await User.findOne(query).select('-password').lean();
 
     if (!user) {
       throw new NotFoundError('User');
     }
+
+    const userId = user._id.toString();
 
     const postsCount = 0;
     let isFollowing = false;

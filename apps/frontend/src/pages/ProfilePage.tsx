@@ -18,7 +18,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (error || !data?.data) {
+  if (error || !data?.data?.user) {
     return (
       <div className="text-center py-20">
         <h2 className="text-xl font-semibold mb-2">User not found</h2>
@@ -29,7 +29,7 @@ export default function ProfilePage() {
     );
   }
 
-  const profile = data.data;
+  const profile = data.data.user;
 
   return (
     <div className="max-w-[935px] mx-auto">
