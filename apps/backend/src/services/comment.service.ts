@@ -60,13 +60,28 @@ export class CommentService {
   }
 
   static async getCommentById(commentId: string): Promise<PopulatedComment> {
-    const comment = (await Comment.findById(commentId)
+    const rawComment = await Comment.findById(commentId)
       .populate('author', 'username avatar')
-      .lean()) as PopulatedComment | null;
+      .lean();
 
-    if (!comment) {
+    if (!rawComment) {
       throw new NotFoundError('Comment');
     }
+
+    const comment: PopulatedComment = {
+      _id: rawComment._id,
+      post: rawComment.post,
+      author: {
+        _id: (rawComment.author as any)._id,
+        username: (rawComment.author as any).username,
+        avatar: (rawComment.author as any).avatar,
+      },
+      content: rawComment.content,
+      parentComment: rawComment.parentComment,
+      repliesCount: rawComment.repliesCount,
+      createdAt: rawComment.createdAt,
+      updatedAt: rawComment.updatedAt,
+    };
 
     return comment;
   }
@@ -87,12 +102,27 @@ export class CommentService {
 
     const skip = (page - 1) * limit;
 
-    const comments = (await Comment.find({ post: postId, parentComment: null })
+    const rawComments = await Comment.find({ post: postId, parentComment: null })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate('author', 'username avatar')
-      .lean()) as PopulatedComment[];
+      .lean();
+
+    const comments: PopulatedComment[] = rawComments.map((comment) => ({
+      _id: comment._id,
+      post: comment.post,
+      author: {
+        _id: (comment.author as any)._id,
+        username: (comment.author as any).username,
+        avatar: (comment.author as any).avatar,
+      },
+      content: comment.content,
+      parentComment: comment.parentComment,
+      repliesCount: comment.repliesCount,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+    }));
 
     const total = await Comment.countDocuments({ post: postId, parentComment: null });
     const pages = Math.ceil(total / limit);
@@ -116,12 +146,27 @@ export class CommentService {
 
     const skip = (page - 1) * limit;
 
-    const replies = (await Comment.find({ parentComment: commentId })
+    const rawReplies = await Comment.find({ parentComment: commentId })
       .sort({ createdAt: 1 })
       .skip(skip)
       .limit(limit)
       .populate('author', 'username avatar')
-      .lean()) as PopulatedComment[];
+      .lean();
+
+    const replies: PopulatedComment[] = rawReplies.map((reply) => ({
+      _id: reply._id,
+      post: reply.post,
+      author: {
+        _id: (reply.author as any)._id,
+        username: (reply.author as any).username,
+        avatar: (reply.author as any).avatar,
+      },
+      content: reply.content,
+      parentComment: reply.parentComment,
+      repliesCount: reply.repliesCount,
+      createdAt: reply.createdAt,
+      updatedAt: reply.updatedAt,
+    }));
 
     const total = await Comment.countDocuments({ parentComment: commentId });
     const pages = Math.ceil(total / limit);
