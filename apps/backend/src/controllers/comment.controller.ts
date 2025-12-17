@@ -22,8 +22,9 @@ export class CommentController {
 
   static getComment = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
+    const currentUserId = req.user?._id.toString();
 
-    const comment = await CommentService.getCommentById(id);
+    const comment = await CommentService.getCommentById(id, currentUserId);
 
     new ApiResponse(200, { comment }, 'Comment retrieved successfully').send(res);
   });
@@ -46,11 +47,13 @@ export class CommentController {
   static getCommentReplies = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { page, limit } = req.query;
+    const currentUserId = req.user?._id.toString();
 
     const result = await CommentService.getCommentReplies(
       id,
       Number(page) || 1,
-      Number(limit) || 10
+      Number(limit) || 10,
+      currentUserId
     );
 
     new ApiResponse(200, result, 'Comment replies retrieved successfully').send(res);

@@ -10,8 +10,8 @@ router.post('/:userId', authenticate, FollowController.followUser);
 
 router.delete('/:userId', authenticate, FollowController.unfollowUser);
 
-router.get('/:userId/followers', validateQuery(getFollowsQuerySchema), FollowController.getFollowers);
+router.get('/:userId/followers', authenticate, validateQuery(getFollowsQuerySchema), FollowController.getFollowers);
 
-router.get('/:userId/following', validateQuery(getFollowsQuerySchema), FollowController.getFollowing);
+router.get('/:userId/following', authenticate, validateQuery(getFollowsQuerySchema), FollowController.getFollowing);
 
 export default router;

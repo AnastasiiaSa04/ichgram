@@ -5,6 +5,7 @@ import { NotFoundError, ForbiddenError } from '../utils/ApiError';
 import mongoose, { FlattenMaps } from 'mongoose';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '../models/Notification.model';
+import { CommentLikeService } from './commentLike.service';
 
 interface CreateCommentData {
   post: string;
@@ -83,7 +84,7 @@ export class CommentService {
     return comment.populate('author', 'username avatar');
   }
 
-  static async getCommentById(commentId: string): Promise<PopulatedComment> {
+  static async getCommentById(commentId: string, currentUserId?: string): Promise<PopulatedComment> {
     const rawComment = await Comment.findById(commentId)
       .populate('author', 'username avatar')
       .lean();
@@ -104,7 +105,7 @@ export class CommentService {
       parentComment: rawComment.parentComment,
       repliesCount: rawComment.repliesCount,
       likesCount: rawComment.likesCount || 0,
-      isLiked: false,
+      isLiked: currentUserId ? await CommentLikeService.checkUserLiked(commentId, currentUserId) : false,
       createdAt: rawComment.createdAt,
       updatedAt: rawComment.updatedAt,
     };
@@ -170,7 +171,8 @@ export class CommentService {
   static async getCommentReplies(
     commentId: string,
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    currentUserId?: string
   ): Promise<{
     replies: PopulatedComment[];
     total: number;
@@ -190,27 +192,29 @@ export class CommentService {
       .populate('author', 'username avatar')
       .lean();
 
-    const replies: PopulatedComment[] = rawReplies.map((reply) => ({
-      _id: reply._id,
-      post: reply.post,
-      author: {
-        _id: (reply.author as any)._id,
-        username: (reply.author as any).username,
-        avatar: (reply.author as any).avatar,
-      },
-      content: reply.content,
-      parentComment: reply.parentComment,
-      repliesCount: reply.repliesCount,
-      likesCount: reply.likesCount || 0,
-      isLiked: false,
-      createdAt: reply.createdAt,
-      updatedAt: reply.updatedAt,
-    }));
+    const repliesWithLikes = await Promise.all(
+      rawReplies.map(async (reply) => ({
+        _id: reply._id,
+        post: reply.post,
+        author: {
+          _id: (reply.author as any)._id,
+          username: (reply.author as any).username,
+          avatar: (reply.author as any).avatar,
+        },
+        content: reply.content,
+        parentComment: reply.parentComment,
+        repliesCount: reply.repliesCount,
+        likesCount: reply.likesCount || 0,
+        isLiked: currentUserId ? await CommentLikeService.checkUserLiked(reply._id.toString(), currentUserId) : false,
+        createdAt: reply.createdAt,
+        updatedAt: reply.updatedAt,
+      }))
+    );
 
     const total = await Comment.countDocuments({ parentComment: commentId });
     const pages = Math.ceil(total / limit);
 
-    return { replies, total, pages };
+    return { replies: repliesWithLikes, total, pages };
   }
 
   static async updateComment(

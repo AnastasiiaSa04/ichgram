@@ -24,10 +24,11 @@ router.get(
   CommentController.getPostComments
 );
 
-router.get('/:id', CommentController.getComment);
+router.get('/:id', authenticate, CommentController.getComment);
 
 router.get(
   '/:id/replies',
+  authenticate,
   validateQuery(getCommentsQuerySchema),
   CommentController.getCommentReplies
 );
