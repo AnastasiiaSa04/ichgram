@@ -8,7 +8,6 @@ import { useAppDispatch } from '@/app/hooks';
 import { setCredentials } from '@/features/auth/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/ui/Logo';
 import { ROUTES } from '@/lib/constants';
 import { toast } from '@/hooks/useToast';
@@ -68,104 +67,111 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-full max-w-[350px]">
-      <div className="bg-white border border-border rounded-sm p-10 mb-3">
-        <div className="text-center mb-3">
-          <Logo className="text-4xl" />
-        </div>
-        <p className="text-center text-muted-foreground font-semibold mb-5">
-          Sign up to see photos and videos from your friends.
-        </p>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-          <div>
-            <Label htmlFor="email" className="sr-only">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Email"
-              {...register('email')}
-              className="bg-gray-50 border-gray-200 text-sm h-9"
-            />
-            {errors.email && (
-              <p className="text-xs text-destructive mt-1">{errors.email.message}</p>
-            )}
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <div className="flex flex-col items-center">
+        <div className="bg-white border border-[#dbdbdb] rounded-[1px] p-10 mb-3 w-[350px]">
+          <div className="flex justify-center mb-4">
+            <Logo />
           </div>
-
-          <div>
-            <Label htmlFor="fullName" className="sr-only">
-              Full Name
-            </Label>
-            <Input
-              id="fullName"
-              type="text"
-              placeholder="Full Name"
-              {...register('fullName')}
-              className="bg-gray-50 border-gray-200 text-sm h-9"
-            />
-            {errors.fullName && (
-              <p className="text-xs text-destructive mt-1">{errors.fullName.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="username" className="sr-only">
-              Username
-            </Label>
-            <Input
-              id="username"
-              type="text"
-              placeholder="Username"
-              {...register('username')}
-              className="bg-gray-50 border-gray-200 text-sm h-9"
-            />
-            {errors.username && (
-              <p className="text-xs text-destructive mt-1">{errors.username.message}</p>
-            )}
-          </div>
-          
-          <div className="relative">
-            <Label htmlFor="password" className="sr-only">
-              Password
-            </Label>
-            <Input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Password"
-              {...register('password')}
-              className="bg-gray-50 border-gray-200 text-sm h-9 pr-16"
-            />
-            {errors.password && (
-              <p className="text-xs text-destructive mt-1">{errors.password.message}</p>
-            )}
-            <button
-              type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </div>
-
-          <p className="text-xs text-muted-foreground text-center pt-3">
-            People who use our service may have uploaded your contact information to Ichgram.
+          <p className="text-center text-[#737373] font-semibold text-base mb-6">
+            Sign up to see photos and videos from your friends.
           </p>
 
-          <Button type="submit" className="w-full mt-4" disabled={isLoading}>
-            {isLoading ? 'Signing up...' : 'Sign up'}
-          </Button>
-        </form>
-      </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-[6px]">
+            <div>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Email"
+                {...register('email')}
+                className="bg-[#fafafa] border-[#dbdbdb] text-xs h-[38px] rounded-[3px]"
+              />
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+              )}
+            </div>
 
-      <div className="bg-white border border-border rounded-sm p-5 text-center text-sm">
-        Have an account?{' '}
-        <Link to={ROUTES.LOGIN} className="text-instagram-blue font-semibold hover:text-instagram-blue-hover">
-          Log in
-        </Link>
+            <div>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Full Name"
+                {...register('fullName')}
+                className="bg-[#fafafa] border-[#dbdbdb] text-xs h-[38px] rounded-[3px]"
+              />
+              {errors.fullName && (
+                <p className="text-xs text-red-500 mt-1">{errors.fullName.message}</p>
+              )}
+            </div>
+
+            <div>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Username"
+                {...register('username')}
+                className="bg-[#fafafa] border-[#dbdbdb] text-xs h-[38px] rounded-[3px]"
+              />
+              {errors.username && (
+                <p className="text-xs text-red-500 mt-1">{errors.username.message}</p>
+              )}
+            </div>
+
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Password"
+                {...register('password')}
+                className="bg-[#fafafa] border-[#dbdbdb] text-xs h-[38px] rounded-[3px] pr-14"
+              />
+              {errors.password && (
+                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+              )}
+              <button
+                type="button"
+                className="absolute right-3 top-[19px] -translate-y-1/2 text-sm font-semibold text-gray-800"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+
+            <div className="text-xs text-[#737373] text-center pt-4 pb-2 leading-4">
+              <p>
+                People who use our service may have uploaded your contact information to Instagram.{' '}
+                <a href="#" className="text-[#00376b]">Learn More</a>
+              </p>
+              <p className="mt-3">
+                By signing up, you agree to our{' '}
+                <a href="#" className="text-[#00376b]">Terms</a>
+                {' '},{' '}
+                <a href="#" className="text-[#00376b]">Privacy Policy</a>
+                {' '}and{' '}
+                <a href="#" className="text-[#00376b]">Cookies Policy</a>
+                {' '}.
+              </p>
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full h-8 rounded-lg bg-[#0095f6] hover:bg-[#1877f2] text-white font-semibold text-sm"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Signing up...' : 'Sign up'}
+            </Button>
+          </form>
+        </div>
+
+        <div className="bg-white border border-[#dbdbdb] rounded-[1px] p-5 w-[350px] text-center">
+          <p className="text-sm">
+            Have an account?{' '}
+            <Link to={ROUTES.LOGIN} className="text-[#0095f6] font-semibold">
+              Log in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 }
-
