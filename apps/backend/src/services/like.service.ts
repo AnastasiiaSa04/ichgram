@@ -2,6 +2,8 @@ import { Like, ILike } from '../models/Like.model';
 import { Post } from '../models/Post.model';
 import { NotFoundError, ConflictError } from '../utils/ApiError';
 import mongoose from 'mongoose';
+import { NotificationService } from './notification.service';
+import { NotificationType } from '../models/Notification.model';
 
 export class LikeService {
   static async likePost(postId: string, userId: string): Promise<ILike> {
@@ -18,6 +20,13 @@ export class LikeService {
     const like = await Like.create({ post: postId, user: userId });
 
     await Post.findByIdAndUpdate(postId, { $inc: { likesCount: 1 } });
+
+    await NotificationService.createNotification({
+      recipient: post.author.toString(),
+      sender: userId,
+      type: NotificationType.LIKE,
+      post: postId,
+    });
 
     return like;
   }

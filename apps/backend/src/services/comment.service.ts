@@ -2,6 +2,8 @@ import { Comment, IComment } from '../models/Comment.model';
 import { Post } from '../models/Post.model';
 import { NotFoundError, ForbiddenError } from '../utils/ApiError';
 import mongoose, { FlattenMaps } from 'mongoose';
+import { NotificationService } from './notification.service';
+import { NotificationType } from '../models/Notification.model';
 
 interface CreateCommentData {
   post: string;
@@ -54,6 +56,25 @@ export class CommentService {
 
     if (data.parentComment) {
       await Comment.findByIdAndUpdate(data.parentComment, { $inc: { repliesCount: 1 } });
+
+      const parentComment = await Comment.findById(data.parentComment);
+      if (parentComment) {
+        await NotificationService.createNotification({
+          recipient: parentComment.author.toString(),
+          sender: data.author,
+          type: NotificationType.COMMENT_REPLY,
+          post: data.post,
+          comment: comment._id.toString(),
+        });
+      }
+    } else {
+      await NotificationService.createNotification({
+        recipient: post.author.toString(),
+        sender: data.author,
+        type: NotificationType.COMMENT,
+        post: data.post,
+        comment: comment._id.toString(),
+      });
     }
 
     return comment.populate('author', 'username avatar');

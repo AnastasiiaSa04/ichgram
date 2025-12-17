@@ -2,6 +2,8 @@ import { Follow, IFollow } from '../models/Follow.model';
 import { User } from '../models/User.model';
 import { NotFoundError, ConflictError, ForbiddenError } from '../utils/ApiError';
 import mongoose from 'mongoose';
+import { NotificationService } from './notification.service';
+import { NotificationType } from '../models/Notification.model';
 
 interface UserProfile {
   _id: mongoose.Types.ObjectId;
@@ -36,6 +38,12 @@ export class FollowService {
 
     await User.findByIdAndUpdate(followerId, { $inc: { followingCount: 1 } });
     await User.findByIdAndUpdate(followingId, { $inc: { followersCount: 1 } });
+
+    await NotificationService.createNotification({
+      recipient: followingId,
+      sender: followerId,
+      type: NotificationType.FOLLOW,
+    });
 
     return follow;
   }
