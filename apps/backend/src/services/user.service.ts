@@ -1,6 +1,7 @@
 import { User, IUser } from '../models/User.model';
 import { NotFoundError } from '../utils/ApiError';
 import mongoose, { FlattenMaps } from 'mongoose';
+import { FollowService } from './follow.service';
 
 interface UpdateProfileData {
   fullName?: string;
@@ -61,12 +62,10 @@ export class UserService {
     }
 
     const postsCount = 0;
-    const followersCount = 0;
-    const followingCount = 0;
     let isFollowing = false;
 
-    if (currentUserId) {
-      isFollowing = false;
+    if (currentUserId && currentUserId !== userId) {
+      isFollowing = await FollowService.checkFollowing(currentUserId, userId);
     }
 
     const userProfile: UserProfile = {
@@ -79,8 +78,8 @@ export class UserService {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       postsCount,
-      followersCount,
-      followingCount,
+      followersCount: user.followersCount,
+      followingCount: user.followingCount,
       isFollowing,
     };
 
