@@ -9,6 +9,8 @@ export interface IUser extends Document {
   fullName?: string;
   bio?: string;
   avatar?: string;
+  followersCount: number;
+  followingCount: number;
   isDeleted: boolean;
   deletedAt?: Date;
   createdAt: Date;
@@ -52,6 +54,16 @@ const userSchema = new Schema<IUser>(
     },
     avatar: {
       type: String,
+    },
+    followersCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    followingCount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     isDeleted: {
       type: Boolean,
