@@ -21,14 +21,20 @@ interface CreateConversationRequest {
   participantId: string;
 }
 
+interface ConversationsResponse {
+  conversations: ConversationWithParticipants[];
+  total: number;
+  pages: number;
+}
+
 export const messagesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getConversations: builder.query<ApiSuccessResponse<ConversationWithParticipants[]>, void>({
+    getConversations: builder.query<ApiSuccessResponse<ConversationsResponse>, void>({
       query: () => '/messages/conversations',
       providesTags: (result) =>
-        result?.data
+        result?.data?.conversations
           ? [
-              ...result.data.map(({ _id }) => ({ type: 'Conversation' as const, id: _id })),
+              ...result.data.conversations.map(({ _id }) => ({ type: 'Conversation' as const, id: _id })),
               { type: 'Conversation', id: 'LIST' },
             ]
           : [{ type: 'Conversation', id: 'LIST' }],

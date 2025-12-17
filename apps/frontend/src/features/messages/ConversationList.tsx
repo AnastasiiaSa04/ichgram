@@ -17,7 +17,7 @@ export function ConversationList({ activeConversationId }: ConversationListProps
   const { onlineUsers } = useSocket();
   const { data, isLoading } = useGetConversationsQuery();
 
-  const conversations = data?.data || [];
+  const conversations = data?.data?.conversations || [];
 
   return (
     <div className="w-[350px] border-r border-border flex flex-col">

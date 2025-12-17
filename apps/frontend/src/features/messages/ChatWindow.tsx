@@ -33,7 +33,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
   const [sendMessage, { isLoading: isSending }] = useSendMessageMutation();
   const [markAsRead] = useMarkConversationAsReadMutation();
 
-  const conversation = conversationsData?.data?.find((c) => c._id === conversationId);
+  const conversation = conversationsData?.data?.conversations?.find((c) => c._id === conversationId);
   const otherParticipant = conversation?.participants.find((p) => p._id !== user?._id);
   const messages = messagesData?.data?.data || [];
   const isOnline = otherParticipant ? onlineUsers.has(otherParticipant._id) : false;
