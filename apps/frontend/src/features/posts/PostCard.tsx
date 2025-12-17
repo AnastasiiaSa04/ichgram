@@ -70,7 +70,7 @@ export function PostCard({ post }: PostCardProps) {
     if (!comment.trim()) return;
 
     try {
-      await addComment({ postId: post._id, text: comment }).unwrap();
+      await addComment({ postId: post._id, content: comment }).unwrap();
       setComment('');
     } catch {
       // Handle error

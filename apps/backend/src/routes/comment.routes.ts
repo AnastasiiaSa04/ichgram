@@ -19,6 +19,7 @@ router.post(
 
 router.get(
   '/post/:postId',
+  authenticate,
   validateQuery(getCommentsQuerySchema),
   CommentController.getPostComments
 );
@@ -34,5 +35,9 @@ router.get(
 router.put('/:id', authenticate, validate(updateCommentSchema), CommentController.updateComment);
 
 router.delete('/:id', authenticate, CommentController.deleteComment);
+
+router.post('/:id/like', authenticate, CommentController.likeComment);
+
+router.delete('/:id/like', authenticate, CommentController.unlikeComment);
 
 export default router;

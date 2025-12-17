@@ -15,7 +15,7 @@ export const followsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     follow: builder.mutation<ApiSuccessResponse<FollowResponse>, string>({
       query: (userId) => ({
-        url: `/follows/${userId}/follow`,
+        url: `/follows/${userId}`,
         method: 'POST',
       }),
       invalidatesTags: (_result, _error, userId) => [
@@ -25,7 +25,7 @@ export const followsApi = baseApi.injectEndpoints({
     }),
     unfollow: builder.mutation<ApiSuccessResponse<FollowResponse>, string>({
       query: (userId) => ({
-        url: `/follows/${userId}/unfollow`,
+        url: `/follows/${userId}`,
         method: 'DELETE',
       }),
       invalidatesTags: (_result, _error, userId) => [
@@ -43,10 +43,6 @@ export const followsApi = baseApi.injectEndpoints({
         `/follows/${userId}/following?page=${page}&limit=${limit}`,
       providesTags: (_result, _error, { userId }) => [{ type: 'Follow', id: `following_${userId}` }],
     }),
-    checkFollowStatus: builder.query<ApiSuccessResponse<{ isFollowing: boolean }>, string>({
-      query: (userId) => `/follows/${userId}/status`,
-      providesTags: (_result, _error, userId) => [{ type: 'Follow', id: userId }],
-    }),
   }),
 });
 
@@ -55,6 +51,5 @@ export const {
   useUnfollowMutation,
   useGetFollowersQuery,
   useGetFollowingQuery,
-  useCheckFollowStatusQuery,
 } = followsApi;
 

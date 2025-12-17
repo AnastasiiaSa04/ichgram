@@ -10,7 +10,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useGetPostQuery } from './postsApi';
-import { useGetCommentsQuery, useAddCommentMutation } from './commentsApi';
+import { useGetCommentsQuery, useAddCommentMutation, useLikeCommentMutation, useUnlikeCommentMutation } from './commentsApi';
 import { useLikePostMutation, useUnlikePostMutation } from './likesApi';
 import { ROUTES } from '@/lib/constants';
 import { formatRelativeTime, getImageUrl, formatNumber, cn } from '@/lib/utils';
@@ -35,9 +35,11 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
   const [likePost] = useLikePostMutation();
   const [unlikePost] = useUnlikePostMutation();
   const [addComment, { isLoading: isAddingComment }] = useAddCommentMutation();
+  const [likeComment] = useLikeCommentMutation();
+  const [unlikeComment] = useUnlikeCommentMutation();
 
   const post = postData?.data?.post;
-  const comments = commentsData?.data?.data || [];
+  const comments = commentsData?.data?.comments || [];
 
   useEffect(() => {
     if (post) {
@@ -79,7 +81,7 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
     if (!comment.trim()) return;
 
     try {
-      await addComment({ postId, text: comment }).unwrap();
+      await addComment({ postId, content: comment }).unwrap();
       setComment('');
     } catch {
       // Handle error
@@ -162,24 +164,57 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
                   </div>
                 ) : (
                   comments.map((c) => (
-                    <div key={c._id} className="flex gap-3">
-                      <Link to={ROUTES.PROFILE(c.userId.username)}>
+                    <div key={c._id} className="flex gap-3 group">
+                      <Link to={ROUTES.PROFILE(c.author.username)}>
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={getImageUrl(c.userId.avatar)} />
-                          <AvatarFallback>{c.userId.username[0].toUpperCase()}</AvatarFallback>
+                          <AvatarImage src={getImageUrl(c.author.avatar)} />
+                          <AvatarFallback>{c.author.username[0].toUpperCase()}</AvatarFallback>
                         </Avatar>
                       </Link>
-                      <div>
+                      <div className="flex-1">
                         <p className="text-sm">
-                          <Link to={ROUTES.PROFILE(c.userId.username)} className="font-semibold mr-1">
-                            {c.userId.username}
+                          <Link to={ROUTES.PROFILE(c.author.username)} className="font-semibold mr-1">
+                            {c.author.username}
                           </Link>
-                          {c.text}
+                          {c.content}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatRelativeTime(c.createdAt)}
-                        </p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-xs text-muted-foreground">
+                            {formatRelativeTime(c.createdAt)}
+                          </span>
+                          {c.likesCount > 0 && (
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              {c.likesCount} {c.likesCount === 1 ? 'like' : 'likes'}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      <button
+                        onClick={async () => {
+                          try {
+                            if (c.isLiked) {
+                              await unlikeComment({ commentId: c._id, postId }).unwrap();
+                            } else {
+                              await likeComment({ commentId: c._id, postId }).unwrap();
+                            }
+                          } catch {
+                            // Handle error
+                          }
+                        }}
+                        className={cn(
+                          'transition-opacity',
+                          c.isLiked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                        )}
+                      >
+                        <Heart
+                          className={cn(
+                            'h-3 w-3',
+                            c.isLiked
+                              ? 'fill-red-500 text-red-500'
+                              : 'text-muted-foreground hover:text-foreground'
+                          )}
+                        />
+                      </button>
                     </div>
                   ))
                 )}

@@ -5,6 +5,7 @@ import { Post } from '../models/Post.model';
 import { Follow } from '../models/Follow.model';
 import { Comment } from '../models/Comment.model';
 import { Like } from '../models/Like.model';
+import { CommentLike } from '../models/CommentLike.model';
 
 const log = (msg: string) => console.log(`[seed] ${msg}`);
 
@@ -260,8 +261,8 @@ async function seed() {
       }
     }
     
-    await Comment.insertMany(comments);
-    log(`Created ${comments.length} comments`);
+    const createdComments = await Comment.insertMany(comments);
+    log(`Created ${createdComments.length} comments`);
 
     const commentsPerPost = new Map<string, number>();
     for (const comment of comments) {
@@ -271,6 +272,40 @@ async function seed() {
     
     for (const [postId, count] of commentsPerPost) {
       await Post.findByIdAndUpdate(postId, { commentsCount: count });
+    }
+
+    const commentLikes: { user: mongoose.Types.ObjectId; comment: mongoose.Types.ObjectId }[] = [];
+    const commentLikeSet = new Set<string>();
+    
+    for (const comment of createdComments) {
+      const numLikes = randomInt(0, 5);
+      if (numLikes === 0) continue;
+      
+      const shuffledUsers = shuffleArray(createdUsers);
+      
+      for (let i = 0; i < numLikes; i++) {
+        const key = `${shuffledUsers[i]._id}-${comment._id}`;
+        if (!commentLikeSet.has(key)) {
+          commentLikeSet.add(key);
+          commentLikes.push({
+            user: shuffledUsers[i]._id,
+            comment: comment._id,
+          });
+        }
+      }
+    }
+    
+    await CommentLike.insertMany(commentLikes);
+    log(`Created ${commentLikes.length} comment likes`);
+
+    const likesPerComment = new Map<string, number>();
+    for (const like of commentLikes) {
+      const commentId = like.comment.toString();
+      likesPerComment.set(commentId, (likesPerComment.get(commentId) || 0) + 1);
+    }
+    
+    for (const [commentId, count] of likesPerComment) {
+      await Comment.findByIdAndUpdate(commentId, { likesCount: count });
     }
 
     const follows: { follower: mongoose.Types.ObjectId; following: mongoose.Types.ObjectId }[] = [];
@@ -321,7 +356,8 @@ async function seed() {
     log(`   Users: ${createdUsers.length}`);
     log(`   Posts: ${createdPosts.length}`);
     log(`   Likes: ${likes.length}`);
-    log(`   Comments: ${comments.length}`);
+    log(`   Comments: ${createdComments.length}`);
+    log(`   Comment likes: ${commentLikes.length}`);
     log(`   Follows: ${follows.length}`);
     log('');
     log('🔑 Test accounts (password: Password123!):');

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useFollowMutation, useUnfollowMutation, useCheckFollowStatusQuery } from './followsApi';
+import { useFollowMutation, useUnfollowMutation } from './followsApi';
 import { useAppSelector } from '@/app/hooks';
 import { cn } from '@/lib/utils';
 
@@ -11,13 +11,16 @@ interface FollowButtonProps {
   initialIsFollowing?: boolean;
 }
 
-export function FollowButton({ userId, variant = 'default', className, initialIsFollowing }: FollowButtonProps) {
+export function FollowButton({ userId, variant = 'default', className, initialIsFollowing = false }: FollowButtonProps) {
   const { user } = useAppSelector((state) => state.auth);
-  const { data: statusData } = useCheckFollowStatusQuery(userId, { skip: initialIsFollowing !== undefined });
-  const [isFollowing, setIsFollowing] = useState(initialIsFollowing ?? statusData?.data?.isFollowing ?? false);
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
 
   const [follow, { isLoading: isFollowing_ }] = useFollowMutation();
   const [unfollow, { isLoading: isUnfollowing }] = useUnfollowMutation();
+
+  useEffect(() => {
+    setIsFollowing(initialIsFollowing);
+  }, [initialIsFollowing]);
 
   // Don't show follow button for own profile
   if (user?._id === userId) {

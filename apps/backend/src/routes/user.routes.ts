@@ -11,7 +11,7 @@ router.get('/me', authenticate, UserController.getCurrentUser);
 
 router.get('/search', validateQuery(searchUsersSchema), UserController.searchUsers);
 
-router.get('/:id', UserController.getProfile);
+router.get('/:id', authenticate, UserController.getProfile);
 
 router.put('/profile', authenticate, validate(updateProfileSchema), UserController.updateProfile);
 

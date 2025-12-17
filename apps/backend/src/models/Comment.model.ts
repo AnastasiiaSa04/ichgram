@@ -7,6 +7,7 @@ export interface IComment extends Document {
   content: string;
   parentComment?: mongoose.Types.ObjectId;
   repliesCount: number;
+  likesCount: number;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -39,6 +40,11 @@ const commentSchema = new Schema<IComment>(
       index: true,
     },
     repliesCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    likesCount: {
       type: Number,
       default: 0,
       min: 0,

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { CommentService } from '../services/comment.service';
+import { CommentLikeService } from '../services/commentLike.service';
 import { ApiResponse } from '../utils/ApiResponse';
 import { catchAsync } from '../utils/catchAsync';
 
@@ -30,11 +31,13 @@ export class CommentController {
   static getPostComments = catchAsync(async (req: Request, res: Response) => {
     const { postId } = req.params;
     const { page, limit } = req.query;
+    const currentUserId = req.user?._id.toString();
 
     const result = await CommentService.getPostComments(
       postId,
       Number(page) || 1,
-      Number(limit) || 20
+      Number(limit) || 20,
+      currentUserId
     );
 
     new ApiResponse(200, result, 'Post comments retrieved successfully').send(res);
@@ -70,5 +73,23 @@ export class CommentController {
     await CommentService.deleteComment(id, userId);
 
     new ApiResponse(200, null, 'Comment deleted successfully').send(res);
+  });
+
+  static likeComment = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!._id.toString();
+
+    await CommentLikeService.likeComment(id, userId);
+
+    new ApiResponse(201, null, 'Comment liked successfully').send(res);
+  });
+
+  static unlikeComment = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = req.user!._id.toString();
+
+    await CommentLikeService.unlikeComment(id, userId);
+
+    new ApiResponse(200, null, 'Comment unliked successfully').send(res);
   });
 }

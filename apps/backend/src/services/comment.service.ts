@@ -1,5 +1,6 @@
 import { Comment, IComment } from '../models/Comment.model';
 import { Post } from '../models/Post.model';
+import { CommentLike } from '../models/CommentLike.model';
 import { NotFoundError, ForbiddenError } from '../utils/ApiError';
 import mongoose, { FlattenMaps } from 'mongoose';
 import { NotificationService } from './notification.service';
@@ -29,6 +30,8 @@ interface PopulatedComment {
   content: string;
   parentComment?: mongoose.Types.ObjectId;
   repliesCount: number;
+  likesCount: number;
+  isLiked: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -100,6 +103,8 @@ export class CommentService {
       content: rawComment.content,
       parentComment: rawComment.parentComment,
       repliesCount: rawComment.repliesCount,
+      likesCount: rawComment.likesCount || 0,
+      isLiked: false,
       createdAt: rawComment.createdAt,
       updatedAt: rawComment.updatedAt,
     };
@@ -110,7 +115,8 @@ export class CommentService {
   static async getPostComments(
     postId: string,
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
+    currentUserId?: string
   ): Promise<{
     comments: PopulatedComment[];
     total: number;
@@ -130,20 +136,30 @@ export class CommentService {
       .populate('author', 'username avatar')
       .lean();
 
-    const comments: PopulatedComment[] = rawComments.map((comment) => ({
-      _id: comment._id,
-      post: comment.post,
-      author: {
-        _id: (comment.author as any)._id,
-        username: (comment.author as any).username,
-        avatar: (comment.author as any).avatar,
-      },
-      content: comment.content,
-      parentComment: comment.parentComment,
-      repliesCount: comment.repliesCount,
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-    }));
+    const comments: PopulatedComment[] = await Promise.all(
+      rawComments.map(async (comment) => {
+        const isLiked = currentUserId
+          ? !!(await CommentLike.findOne({ comment: comment._id, user: currentUserId }))
+          : false;
+
+        return {
+          _id: comment._id,
+          post: comment.post,
+          author: {
+            _id: (comment.author as any)._id,
+            username: (comment.author as any).username,
+            avatar: (comment.author as any).avatar,
+          },
+          content: comment.content,
+          parentComment: comment.parentComment,
+          repliesCount: comment.repliesCount,
+          likesCount: comment.likesCount || 0,
+          isLiked,
+          createdAt: comment.createdAt,
+          updatedAt: comment.updatedAt,
+        };
+      })
+    );
 
     const total = await Comment.countDocuments({ post: postId, parentComment: null });
     const pages = Math.ceil(total / limit);
@@ -185,6 +201,8 @@ export class CommentService {
       content: reply.content,
       parentComment: reply.parentComment,
       repliesCount: reply.repliesCount,
+      likesCount: reply.likesCount || 0,
+      isLiked: false,
       createdAt: reply.createdAt,
       updatedAt: reply.updatedAt,
     }));
