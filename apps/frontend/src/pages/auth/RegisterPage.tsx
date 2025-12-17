@@ -50,8 +50,8 @@ export default function RegisterPage() {
         dispatch(
           setCredentials({
             user: result.data.user,
-            accessToken: result.data.accessToken,
-            refreshToken: result.data.refreshToken,
+            accessToken: result.data.tokens.accessToken,
+            refreshToken: result.data.tokens.refreshToken,
           })
         );
         navigate(ROUTES.HOME, { replace: true });
