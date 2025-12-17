@@ -2,6 +2,7 @@ import { Message, IMessage } from '../models/Message.model';
 import { Conversation, IConversation } from '../models/Conversation.model';
 import { User } from '../models/User.model';
 import { NotFoundError, ForbiddenError } from '../utils/ApiError';
+import { emitToUser } from '../config/socket';
 import mongoose from 'mongoose';
 
 interface CreateMessageData {
@@ -78,7 +79,25 @@ export class MessageService {
       lastMessageAt: message.createdAt,
     });
 
-    return message.populate('sender', 'username avatar');
+    const populatedMessage = await message.populate('sender', 'username avatar');
+
+    emitToUser(data.recipient, 'message:new', {
+      conversationId: conversation._id.toString(),
+      message: {
+        _id: populatedMessage._id,
+        conversation: populatedMessage.conversation,
+        sender: {
+          _id: (populatedMessage.sender as any)._id,
+          username: (populatedMessage.sender as any).username,
+          avatar: (populatedMessage.sender as any).avatar,
+        },
+        content: populatedMessage.content,
+        isRead: populatedMessage.isRead,
+        createdAt: populatedMessage.createdAt,
+      },
+    });
+
+    return populatedMessage;
   }
 
   static async getConversations(
@@ -213,7 +232,7 @@ export class MessageService {
       throw new ForbiddenError('You are not a participant in this conversation');
     }
 
-    await Message.updateMany(
+    const result = await Message.updateMany(
       {
         conversation: conversationId,
         sender: { $ne: userId },
@@ -224,6 +243,18 @@ export class MessageService {
         readAt: new Date(),
       }
     );
+
+    if (result.modifiedCount > 0) {
+      const otherParticipant = conversation.participants.find(
+        (p) => p.toString() !== userId
+      );
+      if (otherParticipant) {
+        emitToUser(otherParticipant.toString(), 'message:read', {
+          conversationId: conversationId,
+          readBy: userId,
+        });
+      }
+    }
   }
 
   static async getUnreadCount(userId: string): Promise<number> {

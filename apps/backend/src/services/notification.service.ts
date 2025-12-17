@@ -1,5 +1,6 @@
 import { Notification, INotification, NotificationType } from '../models/Notification.model';
 import { NotFoundError } from '../utils/ApiError';
+import { emitToUser } from '../config/socket';
 import mongoose from 'mongoose';
 
 interface CreateNotificationData {
@@ -35,6 +36,22 @@ export class NotificationService {
     }
 
     const notification = await Notification.create(data);
+    const populatedNotification = await notification.populate('sender', 'username avatar');
+
+    emitToUser(data.recipient, 'notification:new', {
+      _id: populatedNotification._id,
+      sender: {
+        _id: (populatedNotification.sender as any)._id,
+        username: (populatedNotification.sender as any).username,
+        avatar: (populatedNotification.sender as any).avatar,
+      },
+      type: populatedNotification.type,
+      post: populatedNotification.post,
+      comment: populatedNotification.comment,
+      isRead: populatedNotification.isRead,
+      createdAt: populatedNotification.createdAt,
+    });
+
     return notification;
   }
 
