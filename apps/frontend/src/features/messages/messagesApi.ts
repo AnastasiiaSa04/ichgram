@@ -3,7 +3,6 @@ import type {
   ConversationWithParticipants,
   MessageWithSender,
   ApiSuccessResponse,
-  PaginatedResponse,
 } from '@ichgram/shared-types';
 
 interface GetMessagesParams {
@@ -27,6 +26,12 @@ interface ConversationsResponse {
   pages: number;
 }
 
+interface MessagesResponse {
+  messages: MessageWithSender[];
+  total: number;
+  pages: number;
+}
+
 export const messagesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getConversations: builder.query<ApiSuccessResponse<ConversationsResponse>, void>({
@@ -39,13 +44,13 @@ export const messagesApi = baseApi.injectEndpoints({
             ]
           : [{ type: 'Conversation', id: 'LIST' }],
     }),
-    getMessages: builder.query<ApiSuccessResponse<PaginatedResponse<MessageWithSender>>, GetMessagesParams>({
+    getMessages: builder.query<ApiSuccessResponse<MessagesResponse>, GetMessagesParams>({
       query: ({ conversationId, page = 1, limit = 50 }) =>
         `/messages/conversations/${conversationId}?page=${page}&limit=${limit}`,
       providesTags: (result, _error, { conversationId }) =>
-        result?.data?.data
+        result?.data?.messages
           ? [
-              ...result.data.data.map(({ _id }) => ({ type: 'Message' as const, id: _id })),
+              ...result.data.messages.map(({ _id }) => ({ type: 'Message' as const, id: _id })),
               { type: 'Message', id: `CONV_${conversationId}` },
             ]
           : [{ type: 'Message', id: `CONV_${conversationId}` }],

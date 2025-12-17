@@ -35,7 +35,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
 
   const conversation = conversationsData?.data?.conversations?.find((c) => c._id === conversationId);
   const otherParticipant = conversation?.participants.find((p) => p._id !== user?._id);
-  const messages = messagesData?.data?.data || [];
+  const messages = messagesData?.data?.messages || [];
   const isOnline = otherParticipant ? onlineUsers.has(otherParticipant._id) : false;
 
   // Scroll to bottom when messages change
