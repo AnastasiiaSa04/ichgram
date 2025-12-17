@@ -9,6 +9,7 @@ import { setCredentials } from '@/features/auth/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Logo } from '@/components/ui/Logo';
 import { ROUTES } from '@/lib/constants';
 import { toast } from '@/hooks/useToast';
 
@@ -69,7 +70,9 @@ export default function RegisterPage() {
   return (
     <div className="w-full max-w-[350px]">
       <div className="bg-white border border-border rounded-sm p-10 mb-3">
-        <h1 className="text-4xl font-serif italic text-center mb-3">Ichgram</h1>
+        <div className="text-center mb-3">
+          <Logo className="text-4xl" />
+        </div>
         <p className="text-center text-muted-foreground font-semibold mb-5">
           Sign up to see photos and videos from your friends.
         </p>

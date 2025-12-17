@@ -1,5 +1,6 @@
 export { Avatar, AvatarImage, AvatarFallback } from './avatar';
 export { Button, buttonVariants } from './button';
+export { Logo } from './Logo';
 export {
   Dialog,
   DialogPortal,
