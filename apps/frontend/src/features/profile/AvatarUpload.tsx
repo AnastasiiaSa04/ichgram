@@ -38,8 +38,8 @@ export function AvatarUpload() {
 
     try {
       const result = await updateAvatar(formData).unwrap();
-      if (result.success) {
-        dispatch(updateUser(result.data));
+      if (result.success && result.data.user) {
+        dispatch(updateUser(result.data.user));
         toast({
           title: 'Avatar updated',
           description: 'Your avatar has been updated successfully',

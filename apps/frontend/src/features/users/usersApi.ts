@@ -18,7 +18,7 @@ export const usersApi = baseApi.injectEndpoints({
       query: (username) => `/users/${username}`,
       providesTags: (_result, _error, username) => [{ type: 'User', id: username }],
     }),
-    updateProfile: builder.mutation<ApiSuccessResponse<User>, UpdateProfileRequest>({
+    updateProfile: builder.mutation<ApiSuccessResponse<{ user: User }>, UpdateProfileRequest>({
       query: (data) => ({
         url: '/users/profile',
         method: 'PUT',
@@ -26,10 +26,10 @@ export const usersApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
-    updateAvatar: builder.mutation<ApiSuccessResponse<User>, FormData>({
+    updateAvatar: builder.mutation<ApiSuccessResponse<{ user: User }>, FormData>({
       query: (data) => ({
         url: '/users/avatar',
-        method: 'PUT',
+        method: 'POST',
         body: data,
       }),
       invalidatesTags: ['User'],

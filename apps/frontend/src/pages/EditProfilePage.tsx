@@ -49,8 +49,8 @@ export default function EditProfilePage() {
   const onSubmit = async (data: EditProfileFormData) => {
     try {
       const result = await updateProfile(data).unwrap();
-      if (result.success) {
-        dispatch(updateUser(result.data));
+      if (result.success && result.data.user) {
+        dispatch(updateUser(result.data.user));
         toast({
           title: 'Profile updated',
           description: 'Your profile has been updated successfully',

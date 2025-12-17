@@ -52,8 +52,9 @@ export function formatNumber(num: number): string {
 }
 
 export function getImageUrl(path: string | undefined): string {
-  if (!path) return '/default-avatar.png';
+  if (!path) return '/default-avatar.svg';
   if (path.startsWith('http')) return path;
+  if (path.startsWith('/')) return path;
   return `/uploads/${path}`;
 }
 

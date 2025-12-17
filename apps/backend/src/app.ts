@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+import path from 'path';
 import { httpLogger } from './config/logger';
 import { env } from './config/env';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
@@ -32,6 +33,9 @@ app.use(xss());
 
 // HTTP logging
 app.use(httpLogger);
+
+// Serve uploaded files
+app.use('/uploads', express.static(path.resolve(env.UPLOAD_PATH)));
 
 // Health check endpoint
 app.use('/health', healthRoutes);
