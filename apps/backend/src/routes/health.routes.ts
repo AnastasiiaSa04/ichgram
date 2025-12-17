@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { ApiResponse } from '../utils/ApiResponse';
 
 const router = Router();
 
@@ -17,7 +16,11 @@ router.get('/', (req: Request, res: Response) => {
     environment: process.env.NODE_ENV || 'development',
   };
 
-  res.status(200).json(ApiResponse.success(healthData, 'Health check successful'));
+  res.status(200).json({
+    success: true,
+    data: healthData,
+    message: 'Health check successful',
+  });
 });
 
 export default router;
