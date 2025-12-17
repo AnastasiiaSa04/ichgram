@@ -87,11 +87,11 @@ async function seed() {
     log('Connected to database');
 
     const existingUsers = await User.countDocuments();
-    // if (existingUsers > 0) {
-    //   log('Database already has data, skipping seed');
-    //   await mongoose.disconnect();
-    //   return;
-    // }
+    if (existingUsers > 0) {
+      log('Database already has data, skipping seed');
+      await mongoose.disconnect();
+      return;
+    }
 
     log('Seeding database...');
 
@@ -111,7 +111,7 @@ async function seed() {
       const numPosts = Math.floor(Math.random() * 4) + 2;
       for (let i = 0; i < numPosts; i++) {
         const numImages = Math.floor(Math.random() * 3) + 1;
-        const images = Array.from({ length: numImages }, () => 
+        const images = Array.from({ length: numImages }, () =>
           SAMPLE_IMAGES[Math.floor(Math.random() * SAMPLE_IMAGES.length)]
         );
         posts.push({

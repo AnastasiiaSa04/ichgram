@@ -5,6 +5,8 @@ import { exploreQuerySchema } from '../validators/search.validator';
 
 const router = Router();
 
+router.get('/', validateQuery(exploreQuerySchema), ExploreController.getExplorePosts);
+
 router.get('/trending', validateQuery(exploreQuerySchema), ExploreController.getTrendingPosts);
 
 router.get('/popular', validateQuery(exploreQuerySchema), ExploreController.getPopularPosts);

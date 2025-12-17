@@ -58,7 +58,7 @@ export function PostGrid({ userId }: PostGridProps) {
             className="aspect-square relative group"
           >
             <img
-              src={getImageUrl(post.imageUrl)}
+              src={getImageUrl(post.images[0])}
               alt={post.caption || 'Post'}
               className="w-full h-full object-cover"
               loading="lazy"

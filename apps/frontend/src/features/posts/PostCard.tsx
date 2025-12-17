@@ -29,7 +29,7 @@ export function PostCard({ post }: PostCardProps) {
   const [toggleLike] = useToggleLikeMutation();
   const [addComment, { isLoading: isAddingComment }] = useAddCommentMutation();
 
-  const isOwnPost = currentUser?._id === post.userId._id;
+  const isOwnPost = currentUser?._id === post.author._id;
 
   const handleLike = async () => {
     setIsLiked(!isLiked);
@@ -71,18 +71,18 @@ export function PostCard({ post }: PostCardProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-3">
           <div className="flex items-center gap-3">
-            <Link to={ROUTES.PROFILE(post.userId.username)}>
+            <Link to={ROUTES.PROFILE(post.author.username)}>
               <Avatar className="h-8 w-8">
-                <AvatarImage src={getImageUrl(post.userId.avatar)} alt={post.userId.username} />
-                <AvatarFallback>{post.userId.username[0].toUpperCase()}</AvatarFallback>
+                <AvatarImage src={getImageUrl(post.author.avatar)} alt={post.author.username} />
+                <AvatarFallback>{post.author.username[0].toUpperCase()}</AvatarFallback>
               </Avatar>
             </Link>
             <div className="flex items-center gap-1">
               <Link
-                to={ROUTES.PROFILE(post.userId.username)}
+                to={ROUTES.PROFILE(post.author.username)}
                 className="font-semibold text-sm hover:opacity-70"
               >
-                {post.userId.username}
+                {post.author.username}
               </Link>
               <span className="text-muted-foreground text-sm">•</span>
               <span className="text-muted-foreground text-sm">
@@ -91,7 +91,7 @@ export function PostCard({ post }: PostCardProps) {
               {!isOwnPost && (
                 <>
                   <span className="text-muted-foreground text-sm">•</span>
-                  <FollowButton userId={post.userId._id} variant="link" />
+                  <FollowButton userId={post.author._id} variant="link" />
                 </>
               )}
             </div>
@@ -104,7 +104,7 @@ export function PostCard({ post }: PostCardProps) {
         {/* Image */}
         <div className="relative aspect-square" onDoubleClick={handleDoubleTap}>
           <img
-            src={getImageUrl(post.imageUrl)}
+            src={getImageUrl(post.images[0])}
             alt={post.caption || 'Post'}
             className="w-full h-full object-cover"
             loading="lazy"
@@ -141,8 +141,8 @@ export function PostCard({ post }: PostCardProps) {
           {/* Caption */}
           {post.caption && (
             <p className="text-sm">
-              <Link to={ROUTES.PROFILE(post.userId.username)} className="font-semibold mr-1">
-                {post.userId.username}
+              <Link to={ROUTES.PROFILE(post.author.username)} className="font-semibold mr-1">
+                {post.author.username}
               </Link>
               {post.caption}
             </p>

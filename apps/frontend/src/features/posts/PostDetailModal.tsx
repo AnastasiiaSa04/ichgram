@@ -72,7 +72,7 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
             {/* Image */}
             <div className="w-[500px] bg-black flex items-center justify-center">
               <img
-                src={getImageUrl(post.imageUrl)}
+                src={getImageUrl(post.images[0])}
                 alt={post.caption || 'Post'}
                 className="max-w-full max-h-full object-contain"
               />
@@ -83,17 +83,17 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border">
                 <div className="flex items-center gap-3">
-                  <Link to={ROUTES.PROFILE(post.userId.username)}>
+                  <Link to={ROUTES.PROFILE(post.author.username)}>
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={getImageUrl(post.userId.avatar)} />
-                      <AvatarFallback>{post.userId.username[0].toUpperCase()}</AvatarFallback>
+                      <AvatarImage src={getImageUrl(post.author.avatar)} />
+                      <AvatarFallback>{post.author.username[0].toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Link>
                   <Link
-                    to={ROUTES.PROFILE(post.userId.username)}
+                    to={ROUTES.PROFILE(post.author.username)}
                     className="font-semibold text-sm hover:opacity-70"
                   >
-                    {post.userId.username}
+                    {post.author.username}
                   </Link>
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -107,13 +107,13 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
                 {post.caption && (
                   <div className="flex gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={getImageUrl(post.userId.avatar)} />
-                      <AvatarFallback>{post.userId.username[0].toUpperCase()}</AvatarFallback>
+                      <AvatarImage src={getImageUrl(post.author.avatar)} />
+                      <AvatarFallback>{post.author.username[0].toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-sm">
-                        <Link to={ROUTES.PROFILE(post.userId.username)} className="font-semibold mr-1">
-                          {post.userId.username}
+                        <Link to={ROUTES.PROFILE(post.author.username)} className="font-semibold mr-1">
+                          {post.author.username}
                         </Link>
                         {post.caption}
                       </p>

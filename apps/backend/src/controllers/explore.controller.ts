@@ -4,6 +4,25 @@ import { ApiResponse } from '../utils/ApiResponse';
 import { catchAsync } from '../utils/catchAsync';
 
 export class ExploreController {
+  static getExplorePosts = catchAsync(async (req: Request, res: Response) => {
+    const { page, limit } = req.query;
+
+    const result = await ExploreService.getPopularPosts(
+      Number(page) || 1,
+      Number(limit) || 30
+    );
+
+    new ApiResponse(200, {
+      data: result.posts,
+      pagination: {
+        page: Number(page) || 1,
+        limit: Number(limit) || 30,
+        total: result.total,
+        pages: result.pages,
+      },
+    }, 'Explore posts retrieved successfully').send(res);
+  });
+
   static getTrendingPosts = catchAsync(async (req: Request, res: Response) => {
     const { page, limit } = req.query;
 

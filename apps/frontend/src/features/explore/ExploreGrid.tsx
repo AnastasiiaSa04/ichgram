@@ -31,20 +31,17 @@ export function ExploreGrid() {
     <>
       <div className="grid grid-cols-3 gap-1">
         {posts.map((post, index) => {
-          // Create a varied grid layout
-          const isLarge = index % 10 === 0 || index % 10 === 5;
+          const isLarge = index % 10 === 2 || index % 10 === 5;
           
           return (
             <button
               key={post._id}
               onClick={() => setSelectedPostId(post._id)}
-              className={`relative group ${
-                isLarge ? 'col-span-2 row-span-2' : ''
-              }`}
+              className={`relative group ${isLarge ? 'row-span-2' : ''}`}
             >
-              <div className={isLarge ? 'aspect-square' : 'aspect-square'}>
+              <div className={isLarge ? 'h-full' : 'aspect-square'}>
                 <img
-                  src={getImageUrl(post.imageUrl)}
+                  src={getImageUrl(post.images[0])}
                   alt={post.caption || 'Post'}
                   className="w-full h-full object-cover"
                   loading="lazy"
