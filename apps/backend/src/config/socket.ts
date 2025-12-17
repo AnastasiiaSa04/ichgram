@@ -17,7 +17,7 @@ const connectedUsers = new Map<string, string>();
 export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
   io = new SocketIOServer(httpServer, {
     cors: {
-      origin: env.CLIENT_URL || 'http://localhost:3000',
+      origin: env.FRONTEND_URL || 'http://localhost:3000',
       credentials: true,
     },
   });
