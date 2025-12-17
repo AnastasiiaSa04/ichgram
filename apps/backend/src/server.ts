@@ -1,3 +1,6 @@
+/// <reference path="./types/express.d.ts" />
+/// <reference path="./types/xss-clean.d.ts" />
+
 import { createServer } from 'http';
 import { env } from './config/env';
 import { logger } from './config/logger';
