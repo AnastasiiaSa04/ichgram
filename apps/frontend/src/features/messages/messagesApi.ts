@@ -1,0 +1,86 @@
+import { baseApi } from '@/app/api/baseApi';
+import type {
+  ConversationWithParticipants,
+  MessageWithSender,
+  ApiSuccessResponse,
+  PaginatedResponse,
+} from '@ichgram/shared-types';
+
+interface GetMessagesParams {
+  conversationId: string;
+  page?: number;
+  limit?: number;
+}
+
+interface SendMessageRequest {
+  conversationId: string;
+  content: string;
+}
+
+interface CreateConversationRequest {
+  participantId: string;
+}
+
+export const messagesApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+    getConversations: builder.query<ApiSuccessResponse<ConversationWithParticipants[]>, void>({
+      query: () => '/messages/conversations',
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ _id }) => ({ type: 'Conversation' as const, id: _id })),
+              { type: 'Conversation', id: 'LIST' },
+            ]
+          : [{ type: 'Conversation', id: 'LIST' }],
+    }),
+    getMessages: builder.query<ApiSuccessResponse<PaginatedResponse<MessageWithSender>>, GetMessagesParams>({
+      query: ({ conversationId, page = 1, limit = 50 }) =>
+        `/messages/conversations/${conversationId}?page=${page}&limit=${limit}`,
+      providesTags: (result, _error, { conversationId }) =>
+        result?.data?.data
+          ? [
+              ...result.data.data.map(({ _id }) => ({ type: 'Message' as const, id: _id })),
+              { type: 'Message', id: `CONV_${conversationId}` },
+            ]
+          : [{ type: 'Message', id: `CONV_${conversationId}` }],
+    }),
+    sendMessage: builder.mutation<ApiSuccessResponse<MessageWithSender>, SendMessageRequest>({
+      query: ({ conversationId, content }) => ({
+        url: `/messages/conversations/${conversationId}`,
+        method: 'POST',
+        body: { content },
+      }),
+      invalidatesTags: (_result, _error, { conversationId }) => [
+        { type: 'Message', id: `CONV_${conversationId}` },
+        { type: 'Conversation', id: conversationId },
+        { type: 'Conversation', id: 'LIST' },
+      ],
+    }),
+    createConversation: builder.mutation<ApiSuccessResponse<ConversationWithParticipants>, CreateConversationRequest>({
+      query: ({ participantId }) => ({
+        url: '/messages/conversations',
+        method: 'POST',
+        body: { participantId },
+      }),
+      invalidatesTags: [{ type: 'Conversation', id: 'LIST' }],
+    }),
+    markConversationAsRead: builder.mutation<ApiSuccessResponse<null>, string>({
+      query: (conversationId) => ({
+        url: `/messages/conversations/${conversationId}/read`,
+        method: 'PUT',
+      }),
+      invalidatesTags: (_result, _error, conversationId) => [
+        { type: 'Conversation', id: conversationId },
+      ],
+    }),
+  }),
+});
+
+export const {
+  useGetConversationsQuery,
+  useGetMessagesQuery,
+  useSendMessageMutation,
+  useCreateConversationMutation,
+  useMarkConversationAsReadMutation,
+} = messagesApi;
+
