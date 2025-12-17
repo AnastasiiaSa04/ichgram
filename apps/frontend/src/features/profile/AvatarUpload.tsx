@@ -66,9 +66,9 @@ export function AvatarUpload() {
       <Button
         onClick={() => fileInputRef.current?.click()}
         disabled={isLoading}
-        size="sm"
+        className="h-8 px-4 rounded-[8px] bg-[#0095f6] hover:bg-[#1877f2] font-semibold text-sm"
       >
-        {isLoading ? 'Uploading...' : 'Change photo'}
+        {isLoading ? 'Uploading...' : 'New photo'}
       </Button>
     </>
   );
