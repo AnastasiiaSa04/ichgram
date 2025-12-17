@@ -42,9 +42,20 @@ export const initializeSocket = (httpServer: HTTPServer): SocketIOServer => {
     connectedUsers.set(userId, socket.id);
     logger.info(`User connected: ${userId}`);
 
+    io.emit('user:online', userId);
+
     socket.on('disconnect', () => {
       connectedUsers.delete(userId);
       logger.info(`User disconnected: ${userId}`);
+      io.emit('user:offline', userId);
+    });
+
+    socket.on('message:typing', (data: { conversationId: string }) => {
+      socket.broadcast.emit('message:typing', { conversationId: data.conversationId, userId });
+    });
+
+    socket.on('message:stop_typing', (data: { conversationId: string }) => {
+      socket.broadcast.emit('message:stop_typing', { conversationId: data.conversationId, userId });
     });
   });
 

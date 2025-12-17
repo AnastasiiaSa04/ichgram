@@ -46,6 +46,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
 
     const socketUrl = WS_URL || window.location.origin;
     const newSocket = io(socketUrl, {
+      path: '/socket.io',
       auth: { token: accessToken },
       transports: ['websocket', 'polling'],
     });
