@@ -1,4 +1,5 @@
 import { User, IUser } from '../models/User.model';
+import { Post } from '../models/Post.model';
 import { NotFoundError } from '../utils/ApiError';
 import mongoose, { FlattenMaps } from 'mongoose';
 import { FollowService } from './follow.service';
@@ -65,7 +66,7 @@ export class UserService {
 
     const userId = user._id.toString();
 
-    const postsCount = 0;
+    const postsCount = await Post.countDocuments({ author: user._id });
     let isFollowing = false;
 
     if (currentUserId && currentUserId !== userId) {

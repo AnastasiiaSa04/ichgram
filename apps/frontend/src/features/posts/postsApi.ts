@@ -1,5 +1,5 @@
 import { baseApi } from '@/app/api/baseApi';
-import type { PostWithUser, ApiSuccessResponse, PaginatedResponse } from '@ichgram/shared-types';
+import type { PostWithUser, ApiSuccessResponse } from '@ichgram/shared-types';
 
 interface GetFeedParams {
   page?: number;
@@ -17,30 +17,36 @@ interface UpdatePostRequest {
   caption: string;
 }
 
+interface PostsResponse {
+  posts: PostWithUser[];
+  total: number;
+  pages: number;
+}
+
 export const postsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getFeed: builder.query<ApiSuccessResponse<PaginatedResponse<PostWithUser>>, GetFeedParams>({
+    getFeed: builder.query<ApiSuccessResponse<PostsResponse>, GetFeedParams>({
       query: ({ page = 1, limit = 10 }) => `/posts/feed?page=${page}&limit=${limit}`,
       providesTags: (result) =>
-        result?.data?.data
+        result?.data?.posts
           ? [
-              ...result.data.data.map(({ _id }) => ({ type: 'Post' as const, id: _id })),
+              ...result.data.posts.map(({ _id }) => ({ type: 'Post' as const, id: _id })),
               { type: 'Post', id: 'FEED' },
             ]
           : [{ type: 'Post', id: 'FEED' }],
     }),
-    getUserPosts: builder.query<ApiSuccessResponse<PaginatedResponse<PostWithUser>>, GetUserPostsParams>({
+    getUserPosts: builder.query<ApiSuccessResponse<PostsResponse>, GetUserPostsParams>({
       query: ({ userId, page = 1, limit = 12 }) =>
         `/posts/user/${userId}?page=${page}&limit=${limit}`,
       providesTags: (result, _error, { userId }) =>
-        result?.data?.data
+        result?.data?.posts
           ? [
-              ...result.data.data.map(({ _id }) => ({ type: 'Post' as const, id: _id })),
+              ...result.data.posts.map(({ _id }) => ({ type: 'Post' as const, id: _id })),
               { type: 'Post', id: `USER_${userId}` },
             ]
           : [{ type: 'Post', id: `USER_${userId}` }],
     }),
-    getPost: builder.query<ApiSuccessResponse<PostWithUser>, string>({
+    getPost: builder.query<ApiSuccessResponse<{ post: PostWithUser }>, string>({
       query: (postId) => `/posts/${postId}`,
       providesTags: (_result, _error, postId) => [{ type: 'Post', id: postId }],
     }),

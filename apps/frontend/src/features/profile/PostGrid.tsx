@@ -21,7 +21,7 @@ export function PostGrid({ userId }: PostGridProps) {
     );
   }
 
-  const posts = data?.data?.data || [];
+  const posts = data?.data?.posts || [];
 
   if (posts.length === 0) {
     return (

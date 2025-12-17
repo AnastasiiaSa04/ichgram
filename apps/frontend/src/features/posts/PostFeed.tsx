@@ -13,10 +13,10 @@ export function PostFeed() {
   const { data, isLoading, isFetching } = useGetFeedQuery({ page, limit: POSTS_PER_PAGE });
 
   useEffect(() => {
-    if (data?.data?.data) {
+    if (data?.data?.posts) {
       setAllPosts((prev) => {
         const existingIds = new Set(prev.map((p) => p._id));
-        const newPosts = data.data.data.filter((p) => !existingIds.has(p._id));
+        const newPosts = data.data.posts.filter((p) => !existingIds.has(p._id));
         return [...prev, ...newPosts];
       });
     }
