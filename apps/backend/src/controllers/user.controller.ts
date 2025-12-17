@@ -40,9 +40,9 @@ export class UserController {
   static searchUsers = catchAsync(async (req: Request, res: Response) => {
     const { q, limit } = req.query;
 
-    const users = await UserService.searchUsers(q as string, Number(limit) || 10);
+    const users = await UserService.searchUsers(q as string, Number(limit) || 20);
 
-    new ApiResponse(200, { users }, 'Users retrieved successfully').send(res);
+    new ApiResponse(200, { data: users, total: users.length, pages: 1 }, 'Users retrieved successfully').send(res);
   });
 
   static getCurrentUser = catchAsync(async (req: Request, res: Response) => {

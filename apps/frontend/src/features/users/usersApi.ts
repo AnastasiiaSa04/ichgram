@@ -35,7 +35,7 @@ export const usersApi = baseApi.injectEndpoints({
       invalidatesTags: ['User'],
     }),
     searchUsers: builder.query<ApiSuccessResponse<PaginatedResponse<User>>, SearchUsersParams>({
-      query: ({ query, limit = 20 }) => `/search/users?q=${encodeURIComponent(query)}&limit=${limit}`,
+      query: ({ query, limit = 20 }) => `/users/search?q=${encodeURIComponent(query)}&limit=${limit}`,
     }),
   }),
 });
