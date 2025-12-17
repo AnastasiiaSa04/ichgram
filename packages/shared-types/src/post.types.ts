@@ -17,4 +17,5 @@ export interface Post {
 export interface PostWithUser extends Omit<Post, 'author'> {
   author: UserBasic;
   isLiked?: boolean;
+  isFollowing?: boolean;
 }

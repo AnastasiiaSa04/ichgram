@@ -4,6 +4,7 @@ import { NotFoundError, ConflictError } from '../utils/ApiError';
 import mongoose from 'mongoose';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '../models/Notification.model';
+import { io } from '../config/socket';
 
 export class LikeService {
   static async likePost(postId: string, userId: string): Promise<ILike> {
@@ -28,6 +29,8 @@ export class LikeService {
       post: postId,
     });
 
+    io.emit('post:like', { postId, userId, likesCount: post.likesCount + 1 });
+
     return like;
   }
 
@@ -43,6 +46,8 @@ export class LikeService {
     }
 
     await Post.findByIdAndUpdate(postId, { $inc: { likesCount: -1 } });
+
+    io.emit('post:unlike', { postId, userId, likesCount: post.likesCount - 1 });
   }
 
   static async getPostLikes(

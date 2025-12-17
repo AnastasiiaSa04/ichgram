@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useAppSelector } from '@/app/hooks';
+import { useAppSelector, useAppDispatch } from '@/app/hooks';
 import { WS_URL } from '@/lib/constants';
+import { postsApi } from '@/features/posts/postsApi';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -19,7 +20,8 @@ export function SocketProvider({ children }: { children: ReactNode }) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
-  const { accessToken, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { accessToken, isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   const handleUserOnline = useCallback((userId: string) => {
     setOnlineUsers((prev) => new Set(prev).add(userId));
@@ -62,14 +64,28 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     newSocket.on('user:online', handleUserOnline);
     newSocket.on('user:offline', handleUserOffline);
 
+    newSocket.on('post:like', (data: { postId: string; userId: string; likesCount: number }) => {
+      dispatch(
+        postsApi.util.invalidateTags([{ type: 'Post', id: data.postId }])
+      );
+    });
+
+    newSocket.on('post:unlike', (data: { postId: string; userId: string; likesCount: number }) => {
+      dispatch(
+        postsApi.util.invalidateTags([{ type: 'Post', id: data.postId }])
+      );
+    });
+
     setSocket(newSocket);
 
     return () => {
       newSocket.off('user:online', handleUserOnline);
       newSocket.off('user:offline', handleUserOffline);
+      newSocket.off('post:like');
+      newSocket.off('post:unlike');
       newSocket.disconnect();
     };
-  }, [isAuthenticated, accessToken, handleUserOnline, handleUserOffline]);
+  }, [isAuthenticated, accessToken, handleUserOnline, handleUserOffline, dispatch, user]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected, onlineUsers }}>

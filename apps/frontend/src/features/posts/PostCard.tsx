@@ -114,7 +114,7 @@ export function PostCard({ post }: PostCardProps) {
               {!isOwnPost && (
                 <>
                   <span className="text-muted-foreground text-sm">•</span>
-                  <FollowButton userId={post.author._id} variant="link" />
+                  <FollowButton userId={post.author._id} variant="link" initialIsFollowing={post.isFollowing} />
                 </>
               )}
             </div>

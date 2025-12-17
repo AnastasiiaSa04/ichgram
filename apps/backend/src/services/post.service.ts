@@ -2,6 +2,7 @@ import { Post, IPost } from '../models/Post.model';
 import { NotFoundError, ForbiddenError } from '../utils/ApiError';
 import mongoose, { FlattenMaps } from 'mongoose';
 import { LikeService } from './like.service';
+import { FollowService } from './follow.service';
 
 interface CreatePostData {
   author: string;
@@ -50,6 +51,7 @@ interface PostWithDetails {
   createdAt: Date;
   updatedAt: Date;
   isLiked?: boolean;
+  isFollowing?: boolean;
 }
 
 export class PostService {
@@ -113,6 +115,9 @@ export class PostService {
       posts.map(async (post) => ({
         ...post,
         isLiked: currentUserId ? await LikeService.checkUserLiked(post._id.toString(), currentUserId) : false,
+        isFollowing: currentUserId && currentUserId !== post.author._id.toString()
+          ? await FollowService.checkFollowing(currentUserId, post.author._id.toString())
+          : false,
       }))
     );
 
@@ -140,6 +145,9 @@ export class PostService {
       posts.map(async (post) => ({
         ...post,
         isLiked: await LikeService.checkUserLiked(post._id.toString(), currentUserId),
+        isFollowing: currentUserId !== post.author._id.toString()
+          ? await FollowService.checkFollowing(currentUserId, post.author._id.toString())
+          : false,
       }))
     );
 
