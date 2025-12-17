@@ -12,7 +12,7 @@ interface GetMessagesParams {
 }
 
 interface SendMessageRequest {
-  conversationId: string;
+  recipient: string;
   content: string;
 }
 
@@ -55,16 +55,15 @@ export const messagesApi = baseApi.injectEndpoints({
             ]
           : [{ type: 'Message', id: `CONV_${conversationId}` }],
     }),
-    sendMessage: builder.mutation<ApiSuccessResponse<MessageWithSender>, SendMessageRequest>({
-      query: ({ conversationId, content }) => ({
-        url: `/messages/conversations/${conversationId}`,
+    sendMessage: builder.mutation<ApiSuccessResponse<{ message: MessageWithSender }>, SendMessageRequest>({
+      query: ({ recipient, content }) => ({
+        url: `/messages`,
         method: 'POST',
-        body: { content },
+        body: { recipient, content },
       }),
-      invalidatesTags: (_result, _error, { conversationId }) => [
-        { type: 'Message', id: `CONV_${conversationId}` },
-        { type: 'Conversation', id: conversationId },
-        { type: 'Conversation', id: 'LIST' },
+      invalidatesTags: [
+        { type: 'Message' },
+        { type: 'Conversation' },
       ],
     }),
     createConversation: builder.mutation<ApiSuccessResponse<ConversationWithParticipants>, CreateConversationRequest>({

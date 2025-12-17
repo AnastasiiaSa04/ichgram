@@ -83,10 +83,10 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || !otherParticipant) return;
 
     try {
-      await sendMessage({ conversationId, content: message.trim() }).unwrap();
+      await sendMessage({ recipient: otherParticipant._id, content: message.trim() }).unwrap();
       setMessage('');
       
       // Emit stop typing
@@ -160,10 +160,7 @@ export function ChatWindow({ conversationId }: ChatWindowProps) {
         )}
 
         {!isLoading &&
-          messages
-            .slice()
-            .reverse()
-            .map((msg) => {
+          messages.map((msg) => {
               const isOwn = msg.sender._id === user?._id;
               return (
                 <div
