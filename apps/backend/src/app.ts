@@ -7,6 +7,7 @@ import { httpLogger } from './config/logger';
 import { env } from './config/env';
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import routes from './routes';
+import healthRoutes from './routes/health.routes';
 
 const app: Application = express();
 
@@ -33,13 +34,7 @@ app.use(xss());
 app.use(httpLogger);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  });
-});
+app.use('/health', healthRoutes);
 
 // API routes
 app.use('/api', routes);
