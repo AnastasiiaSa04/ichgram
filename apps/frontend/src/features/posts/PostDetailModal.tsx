@@ -33,7 +33,7 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
   const [toggleLike] = useToggleLikeMutation();
   const [addComment, { isLoading: isAddingComment }] = useAddCommentMutation();
 
-  const post = postData?.data;
+  const post = postData?.data?.post;
   const comments = commentsData?.data?.data || [];
 
   const handleLike = async () => {
@@ -70,11 +70,11 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
         ) : (
           <div className="flex h-[600px]">
             {/* Image */}
-            <div className="w-[500px] bg-black flex items-center justify-center">
+            <div className="w-[500px] flex-shrink-0">
               <img
                 src={getImageUrl(post.images[0])}
                 alt={post.caption || 'Post'}
-                className="max-w-full max-h-full object-contain"
+                className="w-full h-full object-cover"
               />
             </div>
 
