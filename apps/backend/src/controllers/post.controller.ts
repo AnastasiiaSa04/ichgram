@@ -40,11 +40,13 @@ export class PostController {
   static getUserPosts = catchAsync(async (req: Request, res: Response) => {
     const { userId } = req.params;
     const { page, limit } = req.query;
+    const currentUserId = req.user?._id.toString();
 
     const result = await PostService.getUserPosts(
       userId,
       Number(page) || 1,
-      Number(limit) || 10
+      Number(limit) || 10,
+      currentUserId
     );
 
     new ApiResponse(200, result, 'User posts retrieved successfully').send(res);

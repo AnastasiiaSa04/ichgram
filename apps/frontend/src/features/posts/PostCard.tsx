@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, MoreHorizontal } from 'lucide-react';
 import type { PostWithUser } from '@ichgram/shared-types';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { useToggleLikeMutation } from './likesApi';
+import { useLikePostMutation, useUnlikePostMutation } from './likesApi';
 import { useAddCommentMutation } from './commentsApi';
 import { useAppSelector, useAppDispatch } from '@/app/hooks';
 import { setActivePost } from '@/features/ui/uiSlice';
@@ -23,21 +23,44 @@ export function PostCard({ post }: PostCardProps) {
   const [likesCount, setLikesCount] = useState(post.likesCount);
   const [showModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    setIsLiked(post.isLiked || false);
+    setLikesCount(post.likesCount);
+  }, [post.isLiked, post.likesCount]);
+
   const { user: currentUser } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
-  const [toggleLike] = useToggleLikeMutation();
+  const [likePost] = useLikePostMutation();
+  const [unlikePost] = useUnlikePostMutation();
   const [addComment, { isLoading: isAddingComment }] = useAddCommentMutation();
 
   const isOwnPost = currentUser?._id === post.author._id;
 
   const handleLike = async () => {
-    setIsLiked(!isLiked);
-    setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
+    const wasLiked = isLiked;
+    setIsLiked(!wasLiked);
+    setLikesCount((prev) => (wasLiked ? prev - 1 : prev + 1));
     try {
-      await toggleLike(post._id).unwrap();
+      if (wasLiked) {
+        await unlikePost(post._id).unwrap();
+      } else {
+        try {
+          await likePost(post._id).unwrap();
+        } catch (likeError: unknown) {
+          const err = likeError as { status?: number };
+          const status = err.status || (likeError as { originalStatus?: number }).originalStatus;
+          if (status === 409) {
+            await unlikePost(post._id).unwrap();
+            setIsLiked(false);
+            setLikesCount((prev) => Math.max(0, prev - 2));
+            return;
+          }
+          throw likeError;
+        }
+      }
     } catch {
-      setIsLiked(isLiked);
+      setIsLiked(wasLiked);
       setLikesCount(post.likesCount);
     }
   };

@@ -17,9 +17,9 @@ router.post(
 
 router.get('/feed', authenticate, validateQuery(getPostsQuerySchema), PostController.getFeed);
 
-router.get('/user/:userId', validateQuery(getPostsQuerySchema), PostController.getUserPosts);
+router.get('/user/:userId', authenticate, validateQuery(getPostsQuerySchema), PostController.getUserPosts);
 
-router.get('/:id', PostController.getPost);
+router.get('/:id', authenticate, PostController.getPost);
 
 router.put('/:id', authenticate, validate(updatePostSchema), PostController.updatePost);
 

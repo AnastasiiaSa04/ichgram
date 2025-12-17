@@ -94,41 +94,56 @@ export class PostService {
   static async getUserPosts(
     userId: string,
     page: number = 1,
-    limit: number = 10
-  ): Promise<{ posts: LeanPost[]; total: number; pages: number }> {
+    limit: number = 10,
+    currentUserId?: string
+  ): Promise<{ posts: PostWithDetails[]; total: number; pages: number }> {
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find({ author: userId })
+    const posts = (await Post.find({ author: userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate('author', 'username avatar')
-      .lean();
+      .lean()) as unknown as PopulatedPost[];
 
     const total = await Post.countDocuments({ author: userId });
     const pages = Math.ceil(total / limit);
 
-    return { posts, total, pages };
+    const postsWithLikes = await Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        isLiked: currentUserId ? await LikeService.checkUserLiked(post._id.toString(), currentUserId) : false,
+      }))
+    );
+
+    return { posts: postsWithLikes, total, pages };
   }
 
   static async getFeedPosts(
-    userId: string,
+    currentUserId: string,
     page: number = 1,
     limit: number = 10
-  ): Promise<{ posts: LeanPost[]; total: number; pages: number }> {
+  ): Promise<{ posts: PostWithDetails[]; total: number; pages: number }> {
     const skip = (page - 1) * limit;
 
-    const posts = await Post.find()
+    const posts = (await Post.find()
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate('author', 'username avatar')
-      .lean();
+      .lean()) as unknown as PopulatedPost[];
 
     const total = await Post.countDocuments();
     const pages = Math.ceil(total / limit);
 
-    return { posts, total, pages };
+    const postsWithLikes = await Promise.all(
+      posts.map(async (post) => ({
+        ...post,
+        isLiked: await LikeService.checkUserLiked(post._id.toString(), currentUserId),
+      }))
+    );
+
+    return { posts: postsWithLikes, total, pages };
   }
 
   static async updatePost(

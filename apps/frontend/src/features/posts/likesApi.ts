@@ -1,40 +1,30 @@
 import { baseApi } from '@/app/api/baseApi';
 import type { ApiSuccessResponse } from '@ichgram/shared-types';
-import { postsApi } from './postsApi';
-
-interface ToggleLikeResponse {
-  liked: boolean;
-  likesCount: number;
-}
 
 export const likesApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    toggleLike: builder.mutation<ApiSuccessResponse<ToggleLikeResponse>, string>({
+    likePost: builder.mutation<ApiSuccessResponse<null>, string>({
       query: (postId) => ({
-        url: `/likes/posts/${postId}`,
+        url: `/likes/${postId}`,
         method: 'POST',
       }),
-      async onQueryStarted(postId, { dispatch, queryFulfilled }) {
-        // Optimistic update for feed
-        const feedPatch = dispatch(
-          postsApi.util.updateQueryData('getFeed', { page: 1, limit: 10 }, (draft) => {
-            const post = draft.data.data.find((p) => p._id === postId);
-            if (post) {
-              post.isLiked = !post.isLiked;
-              post.likesCount += post.isLiked ? 1 : -1;
-            }
-          })
-        );
-
-        try {
-          await queryFulfilled;
-        } catch {
-          feedPatch.undo();
-        }
-      },
+      invalidatesTags: (_result, _error, postId) => [
+        { type: 'Post', id: postId },
+        { type: 'Post', id: 'FEED' },
+      ],
+    }),
+    unlikePost: builder.mutation<ApiSuccessResponse<null>, string>({
+      query: (postId) => ({
+        url: `/likes/${postId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (_result, _error, postId) => [
+        { type: 'Post', id: postId },
+        { type: 'Post', id: 'FEED' },
+      ],
     }),
   }),
 });
 
-export const { useToggleLikeMutation } = likesApi;
+export const { useLikePostMutation, useUnlikePostMutation } = likesApi;
 

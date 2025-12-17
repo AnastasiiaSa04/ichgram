@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MoreHorizontal, X } from 'lucide-react';
 import {
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useGetPostQuery } from './postsApi';
 import { useGetCommentsQuery, useAddCommentMutation } from './commentsApi';
-import { useToggleLikeMutation } from './likesApi';
+import { useLikePostMutation, useUnlikePostMutation } from './likesApi';
 import { ROUTES } from '@/lib/constants';
 import { formatRelativeTime, getImageUrl, formatNumber, cn } from '@/lib/utils';
 
@@ -23,6 +23,8 @@ interface PostDetailModalProps {
 
 export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalProps) {
   const [comment, setComment] = useState('');
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
 
   const { data: postData, isLoading: isLoadingPost } = useGetPostQuery(postId, { skip: !open });
   const { data: commentsData, isLoading: isLoadingComments } = useGetCommentsQuery(
@@ -30,15 +32,45 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
     { skip: !open }
   );
 
-  const [toggleLike] = useToggleLikeMutation();
+  const [likePost] = useLikePostMutation();
+  const [unlikePost] = useUnlikePostMutation();
   const [addComment, { isLoading: isAddingComment }] = useAddCommentMutation();
 
   const post = postData?.data?.post;
   const comments = commentsData?.data?.data || [];
 
-  const handleLike = async () => {
+  useEffect(() => {
     if (post) {
-      await toggleLike(post._id);
+      setIsLiked(post.isLiked || false);
+      setLikesCount(post.likesCount);
+    }
+  }, [post]);
+
+  const handleLike = async () => {
+    if (!post) return;
+    const wasLiked = isLiked;
+    setIsLiked(!wasLiked);
+    setLikesCount((prev) => (wasLiked ? prev - 1 : prev + 1));
+    try {
+      if (wasLiked) {
+        await unlikePost(post._id).unwrap();
+      } else {
+        await likePost(post._id).unwrap();
+      }
+    } catch (error: unknown) {
+      const err = error as { status?: number };
+      if (err.status === 409) {
+        try {
+          await unlikePost(post._id).unwrap();
+          setIsLiked(false);
+          setLikesCount((prev) => prev - 1);
+          return;
+        } catch {
+          // Ignore
+        }
+      }
+      setIsLiked(wasLiked);
+      setLikesCount(post.likesCount);
     }
   };
 
@@ -159,18 +191,18 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
                   <button
                     onClick={handleLike}
                     className="hover:opacity-70"
-                    aria-label={post.isLiked ? 'Unlike' : 'Like'}
+                    aria-label={isLiked ? 'Unlike' : 'Like'}
                   >
                     <Heart
                       className={cn(
                         'h-6 w-6',
-                        post.isLiked && 'fill-red-500 text-red-500'
+                        isLiked && 'fill-red-500 text-red-500'
                       )}
                     />
                   </button>
                 </div>
                 <p className="font-semibold text-sm mb-1">
-                  {formatNumber(post.likesCount)} likes
+                  {formatNumber(likesCount)} likes
                 </p>
                 <p className="text-xs text-muted-foreground uppercase">
                   {formatRelativeTime(post.createdAt)}
