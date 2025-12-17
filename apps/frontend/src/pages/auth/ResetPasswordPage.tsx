@@ -3,16 +3,15 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Lock } from 'lucide-react';
 import { useResetPasswordMutation } from '@/features/auth/authApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Logo } from '@/components/ui/Logo';
 import { ROUTES } from '@/lib/constants';
 import { toast } from '@/hooks/useToast';
 
 const resetSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  emailOrUsername: z.string().min(1, 'Email or username is required'),
 });
 
 type ResetFormData = z.infer<typeof resetSchema>;
@@ -32,7 +31,7 @@ export default function ResetPasswordPage() {
 
   const onSubmit = async (data: ResetFormData) => {
     try {
-      await resetPassword(data).unwrap();
+      await resetPassword({ email: data.emailOrUsername }).unwrap();
       setEmailSent(true);
       toast({
         title: 'Email sent',
@@ -49,79 +48,102 @@ export default function ResetPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="w-full max-w-[350px]">
-        <div className="bg-white border border-border rounded-sm p-10 text-center">
-          <div className="w-24 h-24 mx-auto border-2 border-foreground rounded-full flex items-center justify-center mb-4">
-            <Lock className="h-12 w-12" />
-          </div>
-          <h2 className="font-semibold mb-2">Email Sent</h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            We sent an email to {getValues('email')} with a link to reset your password.
-          </p>
-          <Link to={ROUTES.LOGIN}>
-            <Button variant="link" className="text-instagram-blue">
-              Back to Login
-            </Button>
+      <div className="min-h-screen bg-white">
+        <header className="border-b border-gray-200 h-[60px] flex items-center px-11">
+          <Link to={ROUTES.HOME}>
+            <Logo />
           </Link>
+        </header>
+        <div className="flex justify-center pt-11">
+          <div className="bg-white border border-gray-200 rounded-[3px] w-[390px] text-center">
+            <div className="p-10">
+              <img
+                src="/lock-icon.svg"
+                alt="Lock"
+                className="w-24 h-24 mx-auto mb-4"
+              />
+              <h2 className="font-semibold text-base mb-2">Email Sent</h2>
+              <p className="text-sm text-gray-500 mb-4 leading-[18px]">
+                We sent an email to {getValues('emailOrUsername')} with a link to reset your password.
+              </p>
+            </div>
+            <div className="bg-gray-50 border-t border-gray-200 py-3">
+              <Link to={ROUTES.LOGIN} className="text-sm font-semibold text-gray-800">
+                Back to login
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-[350px]">
-      <div className="bg-white border border-border rounded-sm p-10 mb-3">
-        <div className="w-24 h-24 mx-auto border-2 border-foreground rounded-full flex items-center justify-center mb-4">
-          <Lock className="h-12 w-12" />
-        </div>
-        
-        <h2 className="font-semibold text-center mb-2">Trouble logging in?</h2>
-        <p className="text-sm text-muted-foreground text-center mb-4">
-          Enter your email and we'll send you a link to get back into your account.
-        </p>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-          <div>
-            <Label htmlFor="email" className="sr-only">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Email"
-              {...register('email')}
-              className="bg-gray-50 border-gray-200 text-sm h-9"
+    <div className="min-h-screen bg-white">
+      <header className="border-b border-gray-200 h-[60px] flex items-center px-11">
+        <Link to={ROUTES.HOME}>
+          <Logo />
+        </Link>
+      </header>
+      <div className="flex justify-center pt-11">
+        <div className="bg-white border border-gray-200 rounded-[3px] w-[390px]">
+          <div className="px-11 pt-6 pb-0">
+            <img
+              src="/lock-icon.svg"
+              alt="Lock"
+              className="w-24 h-24 mx-auto"
             />
-            {errors.email && (
-              <p className="text-xs text-destructive mt-1">{errors.email.message}</p>
-            )}
+            <h2 className="font-semibold text-base text-center mt-3">
+              Trouble logging in?
+            </h2>
+            <p className="text-sm text-gray-500 text-center mt-4 leading-[18px]">
+              Enter your email, phone, or username and we'll send you a link to get back into your account.
+            </p>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
+              <div>
+                <Input
+                  id="emailOrUsername"
+                  type="text"
+                  placeholder="Email or Username"
+                  {...register('emailOrUsername')}
+                  className="bg-gray-50 border-gray-200 h-10 rounded-md"
+                />
+                {errors.emailOrUsername && (
+                  <p className="text-xs text-red-500 mt-1">{errors.emailOrUsername.message}</p>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-8 rounded-lg text-sm font-semibold"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Sending...' : 'Reset your password'}
+              </Button>
+            </form>
+
+            <div className="flex items-center my-6">
+              <div className="flex-1 border-t border-gray-200" />
+              <span className="px-4 text-gray-500 text-[13px] font-semibold uppercase">or</span>
+              <div className="flex-1 border-t border-gray-200" />
+            </div>
+
+            <Link
+              to={ROUTES.SIGNUP}
+              className="block text-center text-sm font-semibold text-gray-800 mb-10"
+            >
+              Create new account
+            </Link>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? 'Sending...' : 'Send login link'}
-          </Button>
-        </form>
-
-        <div className="flex items-center my-5">
-          <div className="flex-1 border-t border-border" />
-          <span className="px-4 text-sm text-muted-foreground font-semibold">OR</span>
-          <div className="flex-1 border-t border-border" />
+          <div className="bg-gray-50 border-t border-gray-200 py-3 text-center">
+            <Link to={ROUTES.LOGIN} className="text-sm font-semibold text-gray-800">
+              Back to login
+            </Link>
+          </div>
         </div>
-
-        <Link
-          to={ROUTES.SIGNUP}
-          className="block text-center text-sm font-semibold hover:opacity-70"
-        >
-          Create new account
-        </Link>
-      </div>
-
-      <div className="bg-white border border-border rounded-sm p-5 text-center text-sm">
-        <Link to={ROUTES.LOGIN} className="font-semibold hover:opacity-70">
-          Back to login
-        </Link>
       </div>
     </div>
   );
 }
-
