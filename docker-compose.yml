@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # MongoDB Replica Set - Node 1 (Primary)
+  mongo1:
+    image: mongo:7.0
+    container_name: mongo1
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27017:27017"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - mongo1_data:/data/db
+      - mongo1_config:/data/configdb
+    networks:
+      - ichgram-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # MongoDB Replica Set - Node 2
+  mongo2:
+    image: mongo:7.0
+    container_name: mongo2
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    ports:
+      - "27018:27018"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - mongo2_data:/data/db
+      - mongo2_config:/data/configdb
+    networks:
+      - ichgram-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27018/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # MongoDB Replica Set - Node 3
+  mongo3:
+    image: mongo:7.0
+    container_name: mongo3
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+    ports:
+      - "27019:27019"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - mongo3_data:/data/db
+      - mongo3_config:/data/configdb
+    networks:
+      - ichgram-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27019/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # MongoDB Replica Set Initializer
+  mongo-init:
+    image: mongo:7.0
+    container_name: mongo-init
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_healthy
+      mongo3:
+        condition: service_healthy
+    networks:
+      - ichgram-network
+    volumes:
+      - ./scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+    entrypoint: [ "bash", "/docker-entrypoint-initdb.d/mongo-init.sh" ]
+
+  # Backend API
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: ichgram-backend
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo1:27017,mongo2:27018,mongo3:27019/ichgram?replicaSet=rs0
+      - JWT_SECRET=your-super-secret-jwt-key-change-this
+      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-change-this
+      - JWT_ACCESS_EXPIRE=15m
+      - JWT_REFRESH_EXPIRE=7d
+      - CLOUDINARY_CLOUD_NAME=your-cloud-name
+      - CLOUDINARY_API_KEY=your-api-key
+      - CLOUDINARY_API_SECRET=your-api-secret
+      - FRONTEND_URL=http://localhost:3000
+    volumes:
+      - ./apps/backend/src:/app/src
+      - ./apps/backend/uploads:/app/uploads
+      - /app/node_modules
+    networks:
+      - ichgram-network
+    command: npm run dev
+
+networks:
+  ichgram-network:
+    driver: bridge
+
+volumes:
+  mongo1_data:
+  mongo1_config:
+  mongo2_data:
+  mongo2_config:
+  mongo3_data:
+  mongo3_config:
