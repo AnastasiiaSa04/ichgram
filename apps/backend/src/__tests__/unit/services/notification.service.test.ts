@@ -30,6 +30,18 @@ describe('NotificationService', () => {
         isRead: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+        populate: jest.fn().mockResolvedValue({
+          _id: new mongoose.Types.ObjectId(),
+          ...notificationData,
+          sender: {
+            _id: new mongoose.Types.ObjectId(mockSenderId),
+            username: 'sender',
+            avatar: 'avatar.jpg',
+          },
+          isRead: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
       };
 
       (Notification.create as jest.Mock).mockResolvedValue(mockNotification);
@@ -37,7 +49,7 @@ describe('NotificationService', () => {
       const result = await NotificationService.createNotification(notificationData);
 
       expect(Notification.create).toHaveBeenCalledWith(notificationData);
-      expect(result).toEqual(mockNotification);
+      expect(mockNotification.populate).toHaveBeenCalledWith('sender', 'username avatar');
     });
 
     it('should not create notification when recipient and sender are the same', async () => {
@@ -68,6 +80,17 @@ describe('NotificationService', () => {
         isRead: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+        populate: jest.fn().mockResolvedValue({
+          _id: new mongoose.Types.ObjectId(),
+          ...notificationData,
+          sender: {
+            _id: new mongoose.Types.ObjectId(mockSenderId),
+            username: 'sender',
+          },
+          isRead: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
       };
 
       (Notification.create as jest.Mock).mockResolvedValue(mockNotification);
@@ -75,7 +98,7 @@ describe('NotificationService', () => {
       const result = await NotificationService.createNotification(notificationData);
 
       expect(Notification.create).toHaveBeenCalledWith(notificationData);
-      expect(result).toEqual(mockNotification);
+      expect(mockNotification.populate).toHaveBeenCalled();
     });
 
     it('should create notification with comment reference', async () => {
@@ -93,6 +116,17 @@ describe('NotificationService', () => {
         isRead: false,
         createdAt: new Date(),
         updatedAt: new Date(),
+        populate: jest.fn().mockResolvedValue({
+          _id: new mongoose.Types.ObjectId(),
+          ...notificationData,
+          sender: {
+            _id: new mongoose.Types.ObjectId(mockSenderId),
+            username: 'sender',
+          },
+          isRead: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
       };
 
       (Notification.create as jest.Mock).mockResolvedValue(mockNotification);
@@ -100,7 +134,7 @@ describe('NotificationService', () => {
       const result = await NotificationService.createNotification(notificationData);
 
       expect(Notification.create).toHaveBeenCalledWith(notificationData);
-      expect(result).toEqual(mockNotification);
+      expect(mockNotification.populate).toHaveBeenCalled();
     });
   });
 
