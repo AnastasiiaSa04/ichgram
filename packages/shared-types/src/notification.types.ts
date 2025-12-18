@@ -1,9 +1,10 @@
 import { UserBasic } from './user.types';
 
 export enum NotificationType {
-  LIKE = 'LIKE',
-  COMMENT = 'COMMENT',
-  FOLLOW = 'FOLLOW',
+  LIKE = 'like',
+  COMMENT = 'comment',
+  FOLLOW = 'follow',
+  COMMENT_REPLY = 'comment_reply',
 }
 
 export interface Notification {

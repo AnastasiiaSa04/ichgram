@@ -29,13 +29,14 @@ export function NotificationPanel({ isOpen }: NotificationPanelProps) {
     dispatch(setNotificationPanelOpen(false));
   };
 
-  const notifications = data?.data?.data || [];
+  const notifications = data?.data?.notifications || [];
 
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
       case NotificationType.LIKE:
         return <Heart className="h-4 w-4 text-red-500 fill-red-500" />;
       case NotificationType.COMMENT:
+      case NotificationType.COMMENT_REPLY:
         return <MessageCircle className="h-4 w-4 text-instagram-blue" />;
       case NotificationType.FOLLOW:
         return <UserPlus className="h-4 w-4 text-green-500" />;
@@ -50,6 +51,8 @@ export function NotificationPanel({ isOpen }: NotificationPanelProps) {
         return 'liked your post.';
       case NotificationType.COMMENT:
         return 'commented on your post.';
+      case NotificationType.COMMENT_REPLY:
+        return 'replied to your comment.';
       case NotificationType.FOLLOW:
         return 'started following you.';
       default:

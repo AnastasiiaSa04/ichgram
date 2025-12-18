@@ -3,6 +3,8 @@ import { io, Socket } from 'socket.io-client';
 import { useAppSelector, useAppDispatch } from '@/app/hooks';
 import { WS_URL } from '@/lib/constants';
 import { postsApi } from '@/features/posts/postsApi';
+import { messagesApi } from '@/features/messages/messagesApi';
+import { notificationsApi } from '@/features/notifications/notificationsApi';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -76,6 +78,32 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       );
     });
 
+    newSocket.on('message:new', (data: { conversationId: string; message: any }) => {
+      dispatch(
+        messagesApi.util.invalidateTags([
+          { type: 'Message', id: data.conversationId },
+          { type: 'Conversation', id: 'LIST' },
+        ])
+      );
+    });
+
+    newSocket.on('message:read', (data: { conversationId: string; readBy: string }) => {
+      dispatch(
+        messagesApi.util.invalidateTags([
+          { type: 'Message', id: data.conversationId },
+        ])
+      );
+    });
+
+    newSocket.on('notification:new', (data: any) => {
+      dispatch(
+        notificationsApi.util.invalidateTags([
+          { type: 'Notification', id: 'LIST' },
+          { type: 'Notification', id: 'UNREAD_COUNT' },
+        ])
+      );
+    });
+
     setSocket(newSocket);
 
     return () => {
@@ -83,6 +111,9 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       newSocket.off('user:offline', handleUserOffline);
       newSocket.off('post:like');
       newSocket.off('post:unlike');
+      newSocket.off('message:new');
+      newSocket.off('message:read');
+      newSocket.off('notification:new');
       newSocket.disconnect();
     };
   }, [isAuthenticated, accessToken, handleUserOnline, handleUserOffline, dispatch, user]);
