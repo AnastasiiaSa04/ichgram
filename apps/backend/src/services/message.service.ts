@@ -82,7 +82,7 @@ export class MessageService {
 
     const populatedMessage = await message.populate('sender', 'username avatar');
 
-    emitToUser(data.recipient, 'message:new', {
+    const messageData = {
       conversationId: conversation._id.toString(),
       message: {
         _id: populatedMessage._id,
@@ -96,7 +96,10 @@ export class MessageService {
         isRead: populatedMessage.isRead,
         createdAt: populatedMessage.createdAt,
       },
-    });
+    };
+
+    emitToUser(data.recipient, 'message:new', messageData);
+    emitToUser(data.sender, 'message:new', messageData);
 
     return populatedMessage;
   }

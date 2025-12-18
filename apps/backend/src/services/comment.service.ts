@@ -6,6 +6,7 @@ import mongoose, { FlattenMaps } from 'mongoose';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '../models/Notification.model';
 import { CommentLikeService } from './commentLike.service';
+import { io } from '../config/socket';
 
 interface CreateCommentData {
   post: string;
@@ -81,7 +82,29 @@ export class CommentService {
       });
     }
 
-    return comment.populate('author', 'username avatar');
+    const populatedComment = await comment.populate('author', 'username avatar');
+
+    io.emit('comment:new', {
+      postId: data.post,
+      comment: {
+        _id: populatedComment._id,
+        post: populatedComment.post,
+        author: {
+          _id: (populatedComment.author as any)._id,
+          username: (populatedComment.author as any).username,
+          avatar: (populatedComment.author as any).avatar,
+        },
+        content: populatedComment.content,
+        parentComment: populatedComment.parentComment,
+        repliesCount: populatedComment.repliesCount,
+        likesCount: populatedComment.likesCount || 0,
+        isLiked: false,
+        createdAt: populatedComment.createdAt,
+        updatedAt: populatedComment.updatedAt,
+      },
+    });
+
+    return populatedComment;
   }
 
   static async getCommentById(commentId: string, currentUserId?: string): Promise<PopulatedComment> {
@@ -242,6 +265,13 @@ export class CommentService {
       throw new NotFoundError('Comment');
     }
 
+    io.emit('comment:update', {
+      commentId,
+      postId: updatedComment.post.toString(),
+      content: updatedComment.content,
+      updatedAt: updatedComment.updatedAt,
+    });
+
     return updatedComment;
   }
 
@@ -263,5 +293,11 @@ export class CommentService {
     if (comment.parentComment) {
       await Comment.findByIdAndUpdate(comment.parentComment, { $inc: { repliesCount: -1 } });
     }
+
+    io.emit('comment:delete', {
+      commentId,
+      postId: comment.post.toString(),
+      parentComment: comment.parentComment?.toString(),
+    });
   }
 }

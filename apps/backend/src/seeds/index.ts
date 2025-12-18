@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import fs from 'fs';
+import path from 'path';
 import { User } from '../models/User.model';
 import { Post } from '../models/Post.model';
 import { Follow } from '../models/Follow.model';
@@ -212,6 +214,34 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
+async function downloadImage(url: string, prefix: string = 'image'): Promise<string> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to download image: ${response.statusText}`);
+    }
+
+    const buffer = await response.arrayBuffer();
+    const uploadDir = process.env.UPLOAD_PATH || './uploads';
+
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const ext = path.extname(url).split('?')[0] || '.jpg';
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const filename = `${prefix}-${uniqueSuffix}${ext}`;
+    const filepath = path.join(uploadDir, filename);
+
+    fs.writeFileSync(filepath, Buffer.from(buffer));
+
+    return `/uploads/${filename}`;
+  } catch (error) {
+    log(`Error downloading image from ${url}: ${error}`);
+    return url;
+  }
+}
+
 async function seed() {
   try {
     log('Connecting to database...');
@@ -228,11 +258,21 @@ async function seed() {
     log('Seeding database...');
 
     const hashedPassword = await bcrypt.hash('Password123!', 10);
+
+    log('Downloading user avatars...');
+    const userAvatars = await Promise.all(
+      users.map(async (_, index) => {
+        const avatarUrl = SAMPLE_AVATARS[index % SAMPLE_AVATARS.length];
+        return await downloadImage(avatarUrl, 'avatar');
+      })
+    );
+    log(`Downloaded ${userAvatars.length} avatars`);
+
     const createdUsers = await User.insertMany(
       users.map((user, index) => ({
         ...user,
         password: hashedPassword,
-        avatar: SAMPLE_AVATARS[index % SAMPLE_AVATARS.length],
+        avatar: userAvatars[index],
       }))
     );
     log(`Created ${createdUsers.length} users`);
@@ -255,6 +295,20 @@ async function seed() {
         });
       }
     }
+
+    log(`Downloading images for ${posts.length} posts...`);
+    for (let i = 0; i < posts.length; i++) {
+      const downloadedImages = await Promise.all(
+        posts[i].images.map((url: string) => downloadImage(url, 'post'))
+      );
+      posts[i].images = downloadedImages;
+
+      if ((i + 1) % 50 === 0) {
+        log(`Downloaded images for ${i + 1}/${posts.length} posts`);
+      }
+    }
+    log(`Downloaded images for all ${posts.length} posts`);
+
     const createdPosts = await Post.insertMany(posts);
     log(`Created ${createdPosts.length} posts`);
 

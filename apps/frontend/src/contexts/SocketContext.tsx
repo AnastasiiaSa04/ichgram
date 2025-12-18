@@ -5,6 +5,7 @@ import { WS_URL } from '@/lib/constants';
 import { postsApi } from '@/features/posts/postsApi';
 import { messagesApi } from '@/features/messages/messagesApi';
 import { notificationsApi } from '@/features/notifications/notificationsApi';
+import { commentsApi } from '@/features/posts/commentsApi';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -81,7 +82,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     newSocket.on('message:new', (data: { conversationId: string; message: any }) => {
       dispatch(
         messagesApi.util.invalidateTags([
-          { type: 'Message', id: data.conversationId },
+          { type: 'Message', id: `CONV_${data.conversationId}` },
           { type: 'Conversation', id: 'LIST' },
         ])
       );
@@ -90,7 +91,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
     newSocket.on('message:read', (data: { conversationId: string; readBy: string }) => {
       dispatch(
         messagesApi.util.invalidateTags([
-          { type: 'Message', id: data.conversationId },
+          { type: 'Message', id: `CONV_${data.conversationId}` },
         ])
       );
     });
@@ -100,6 +101,52 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         notificationsApi.util.invalidateTags([
           { type: 'Notification', id: 'LIST' },
           { type: 'Notification', id: 'UNREAD_COUNT' },
+        ])
+      );
+    });
+
+    newSocket.on('comment:new', (data: { postId: string; comment: any }) => {
+      dispatch(
+        commentsApi.util.invalidateTags([
+          { type: 'Comment', id: `POST_${data.postId}` },
+          { type: 'Post', id: data.postId },
+        ])
+      );
+    });
+
+    newSocket.on('comment:update', (data: { commentId: string; postId: string }) => {
+      dispatch(
+        commentsApi.util.invalidateTags([
+          { type: 'Comment', id: data.commentId },
+          { type: 'Comment', id: `POST_${data.postId}` },
+        ])
+      );
+    });
+
+    newSocket.on('comment:delete', (data: { commentId: string; postId: string }) => {
+      dispatch(
+        commentsApi.util.invalidateTags([
+          { type: 'Comment', id: data.commentId },
+          { type: 'Comment', id: `POST_${data.postId}` },
+          { type: 'Post', id: data.postId },
+        ])
+      );
+    });
+
+    newSocket.on('comment:like', (data: { commentId: string; postId: string; userId: string; likesCount: number }) => {
+      dispatch(
+        commentsApi.util.invalidateTags([
+          { type: 'Comment', id: data.commentId },
+          { type: 'Comment', id: `POST_${data.postId}` },
+        ])
+      );
+    });
+
+    newSocket.on('comment:unlike', (data: { commentId: string; postId: string; userId: string; likesCount: number }) => {
+      dispatch(
+        commentsApi.util.invalidateTags([
+          { type: 'Comment', id: data.commentId },
+          { type: 'Comment', id: `POST_${data.postId}` },
         ])
       );
     });
@@ -114,6 +161,11 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       newSocket.off('message:new');
       newSocket.off('message:read');
       newSocket.off('notification:new');
+      newSocket.off('comment:new');
+      newSocket.off('comment:update');
+      newSocket.off('comment:delete');
+      newSocket.off('comment:like');
+      newSocket.off('comment:unlike');
       newSocket.disconnect();
     };
   }, [isAuthenticated, accessToken, handleUserOnline, handleUserOffline, dispatch, user]);

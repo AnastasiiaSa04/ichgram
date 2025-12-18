@@ -1,6 +1,7 @@
 import { CommentLike, ICommentLike } from '../models/CommentLike.model';
 import { Comment } from '../models/Comment.model';
 import { NotFoundError, ConflictError } from '../utils/ApiError';
+import { io } from '../config/socket';
 
 export class CommentLikeService {
   static async likeComment(commentId: string, userId: string): Promise<ICommentLike> {
@@ -18,6 +19,13 @@ export class CommentLikeService {
 
     await Comment.findByIdAndUpdate(commentId, { $inc: { likesCount: 1 } });
 
+    io.emit('comment:like', {
+      commentId,
+      userId,
+      likesCount: comment.likesCount + 1,
+      postId: comment.post.toString(),
+    });
+
     return like;
   }
 
@@ -33,6 +41,13 @@ export class CommentLikeService {
     }
 
     await Comment.findByIdAndUpdate(commentId, { $inc: { likesCount: -1 } });
+
+    io.emit('comment:unlike', {
+      commentId,
+      userId,
+      likesCount: comment.likesCount - 1,
+      postId: comment.post.toString(),
+    });
   }
 
   static async checkUserLiked(commentId: string, userId: string): Promise<boolean> {
