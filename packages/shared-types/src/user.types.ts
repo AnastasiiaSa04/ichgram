@@ -4,6 +4,7 @@ export interface User {
   email: string;
   fullName?: string;
   bio?: string;
+  website?: string;
   avatar?: string;
   isDeleted: boolean;
   deletedAt?: Date;

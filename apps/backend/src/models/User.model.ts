@@ -8,6 +8,7 @@ export interface IUser extends Document {
   password: string;
   fullName?: string;
   bio?: string;
+  website?: string;
   avatar?: string;
   followersCount: number;
   followingCount: number;
@@ -51,6 +52,10 @@ const userSchema = new Schema<IUser>(
     bio: {
       type: String,
       maxlength: [150, 'Bio must not exceed 150 characters'],
+    },
+    website: {
+      type: String,
+      trim: true,
     },
     avatar: {
       type: String,

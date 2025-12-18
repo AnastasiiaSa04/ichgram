@@ -95,7 +95,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       );
     });
 
-    newSocket.on('notification:new', (data: any) => {
+    newSocket.on('notification:new', (_data: any) => {
       dispatch(
         notificationsApi.util.invalidateTags([
           { type: 'Notification', id: 'LIST' },
