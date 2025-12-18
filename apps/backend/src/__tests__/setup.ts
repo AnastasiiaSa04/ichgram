@@ -1,6 +1,17 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 
+// Mock socket.io
+jest.mock('../config/socket', () => ({
+  io: {
+    emit: jest.fn(),
+    to: jest.fn().mockReturnThis(),
+  },
+  emitToUser: jest.fn(),
+  getSocketId: jest.fn(),
+  initializeSocket: jest.fn(),
+}));
+
 let mongoServer: MongoMemoryServer;
 
 beforeAll(async () => {

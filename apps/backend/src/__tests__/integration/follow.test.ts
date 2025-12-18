@@ -158,7 +158,9 @@ describe('Follow API', () => {
     });
 
     it('should get all followers for a user', async () => {
-      const response = await request(app).get(`/api/follows/${userId3}/followers`);
+      const response = await request(app)
+        .get(`/api/follows/${userId3}/followers`)
+        .set('Authorization', `Bearer ${accessToken1}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -178,6 +180,7 @@ describe('Follow API', () => {
 
       const response = await request(app)
         .get(`/api/follows/${userId3}/followers`)
+        .set('Authorization', `Bearer ${accessToken1}`)
         .query({ page: 1, limit: 10 });
 
       expect(response.status).toBe(200);
@@ -186,7 +189,9 @@ describe('Follow API', () => {
     });
 
     it('should return empty array for user with no followers', async () => {
-      const response = await request(app).get(`/api/follows/${userId1}/followers`);
+      const response = await request(app)
+        .get(`/api/follows/${userId1}/followers`)
+        .set('Authorization', `Bearer ${accessToken1}`);
 
       expect(response.status).toBe(200);
       expect(response.body.data.followers).toHaveLength(0);
@@ -201,7 +206,9 @@ describe('Follow API', () => {
     });
 
     it('should get all users that a user is following', async () => {
-      const response = await request(app).get(`/api/follows/${userId1}/following`);
+      const response = await request(app)
+        .get(`/api/follows/${userId1}/following`)
+        .set('Authorization', `Bearer ${accessToken1}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -221,6 +228,7 @@ describe('Follow API', () => {
 
       const response = await request(app)
         .get(`/api/follows/${userId1}/following`)
+        .set('Authorization', `Bearer ${accessToken1}`)
         .query({ page: 1, limit: 10 });
 
       expect(response.status).toBe(200);
@@ -229,7 +237,9 @@ describe('Follow API', () => {
     });
 
     it('should return empty array for user not following anyone', async () => {
-      const response = await request(app).get(`/api/follows/${userId2}/following`);
+      const response = await request(app)
+        .get(`/api/follows/${userId2}/following`)
+        .set('Authorization', `Bearer ${accessToken1}`);
 
       expect(response.status).toBe(200);
       expect(response.body.data.following).toHaveLength(0);

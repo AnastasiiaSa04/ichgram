@@ -111,7 +111,9 @@ describe('Post API', () => {
 
   describe('GET /api/posts/:id', () => {
     it('should get a post by id', async () => {
-      const response = await request(app).get(`/api/posts/${postId}`);
+      const response = await request(app)
+        .get(`/api/posts/${postId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -123,13 +125,17 @@ describe('Post API', () => {
 
     it('should return 404 for non-existent post', async () => {
       const fakeId = '507f1f77bcf86cd799439011';
-      const response = await request(app).get(`/api/posts/${fakeId}`);
+      const response = await request(app)
+        .get(`/api/posts/${fakeId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(404);
     });
 
     it('should return 400 for invalid post id', async () => {
-      const response = await request(app).get('/api/posts/invalid-id');
+      const response = await request(app)
+        .get('/api/posts/invalid-id')
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(400);
     });
@@ -143,7 +149,9 @@ describe('Post API', () => {
         caption: 'Second post',
       });
 
-      const response = await request(app).get(`/api/posts/user/${userId}`);
+      const response = await request(app)
+        .get(`/api/posts/user/${userId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -163,6 +171,7 @@ describe('Post API', () => {
 
       const response = await request(app)
         .get(`/api/posts/user/${userId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
         .query({ page: 1, limit: 10 });
 
       expect(response.status).toBe(200);
@@ -171,7 +180,9 @@ describe('Post API', () => {
     });
 
     it('should return empty array for user with no posts', async () => {
-      const response = await request(app).get(`/api/posts/user/${anotherUserId}`);
+      const response = await request(app)
+        .get(`/api/posts/user/${anotherUserId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.data.posts).toHaveLength(0);
@@ -267,7 +278,9 @@ describe('Post API', () => {
       const foundPost = await Post.findById(postId);
       expect(foundPost).toBeNull();
 
-      const getResponse = await request(app).get(`/api/posts/${postId}`);
+      const getResponse = await request(app)
+        .get(`/api/posts/${postId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
       expect(getResponse.status).toBe(404);
     });
 

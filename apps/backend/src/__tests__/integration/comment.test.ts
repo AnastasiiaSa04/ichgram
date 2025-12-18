@@ -117,7 +117,9 @@ describe('Comment API', () => {
 
   describe('GET /api/comments/:id', () => {
     it('should get a comment by id', async () => {
-      const response = await request(app).get(`/api/comments/${commentId}`);
+      const response = await request(app)
+        .get(`/api/comments/${commentId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -127,7 +129,9 @@ describe('Comment API', () => {
 
     it('should return 404 for non-existent comment', async () => {
       const fakeId = '507f1f77bcf86cd799439011';
-      const response = await request(app).get(`/api/comments/${fakeId}`);
+      const response = await request(app)
+        .get(`/api/comments/${fakeId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(404);
     });
@@ -143,7 +147,9 @@ describe('Comment API', () => {
     });
 
     it('should get all top-level comments for a post', async () => {
-      const response = await request(app).get(`/api/comments/post/${postId}`);
+      const response = await request(app)
+        .get(`/api/comments/post/${postId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -159,7 +165,9 @@ describe('Comment API', () => {
         parentComment: commentId,
       });
 
-      const response = await request(app).get(`/api/comments/post/${postId}`);
+      const response = await request(app)
+        .get(`/api/comments/post/${postId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.data.comments).toHaveLength(2);
@@ -168,6 +176,7 @@ describe('Comment API', () => {
     it('should support pagination', async () => {
       const response = await request(app)
         .get(`/api/comments/post/${postId}`)
+        .set('Authorization', `Bearer ${accessToken}`)
         .query({ page: 1, limit: 1 });
 
       expect(response.status).toBe(200);
@@ -177,7 +186,9 @@ describe('Comment API', () => {
 
     it('should fail if post does not exist', async () => {
       const fakeId = '507f1f77bcf86cd799439011';
-      const response = await request(app).get(`/api/comments/post/${fakeId}`);
+      const response = await request(app)
+        .get(`/api/comments/post/${fakeId}`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(404);
     });
@@ -200,7 +211,9 @@ describe('Comment API', () => {
     });
 
     it('should get all replies for a comment', async () => {
-      const response = await request(app).get(`/api/comments/${commentId}/replies`);
+      const response = await request(app)
+        .get(`/api/comments/${commentId}/replies`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -211,6 +224,7 @@ describe('Comment API', () => {
     it('should support pagination', async () => {
       const response = await request(app)
         .get(`/api/comments/${commentId}/replies`)
+        .set('Authorization', `Bearer ${accessToken}`)
         .query({ page: 1, limit: 1 });
 
       expect(response.status).toBe(200);
@@ -220,7 +234,9 @@ describe('Comment API', () => {
 
     it('should fail if comment does not exist', async () => {
       const fakeId = '507f1f77bcf86cd799439011';
-      const response = await request(app).get(`/api/comments/${fakeId}/replies`);
+      const response = await request(app)
+        .get(`/api/comments/${fakeId}/replies`)
+        .set('Authorization', `Bearer ${accessToken}`);
 
       expect(response.status).toBe(404);
     });
