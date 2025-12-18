@@ -91,22 +91,16 @@ userSchema.index({ isDeleted: 1 });
 userSchema.index({ createdAt: -1 });
 
 // Pre-save hook for password hashing
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
 
-  try {
-    const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error as Error);
-  }
+  const salt = await bcrypt.genSalt(12);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Filter deleted documents
-userSchema.pre(/^find/, function (this: any, next) {
+userSchema.pre(/^find/, function (this: any) {
   this.where({ isDeleted: { $ne: true } });
-  next();
 });
 
 // Compare password method

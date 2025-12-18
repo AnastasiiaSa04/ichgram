@@ -57,14 +57,15 @@ export class MessageService {
     }
 
     const participantIds = [data.sender, data.recipient].sort();
+    const participantObjectIds = participantIds.map(id => new mongoose.Types.ObjectId(id));
 
     let conversation = await Conversation.findOne({
-      participants: { $all: participantIds, $size: 2 },
+      participants: { $all: participantObjectIds, $size: 2 },
     });
 
     if (!conversation) {
       conversation = await Conversation.create({
-        participants: participantIds,
+        participants: participantObjectIds,
       });
     }
 

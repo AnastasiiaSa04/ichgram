@@ -35,7 +35,7 @@ export class UserService {
       throw new NotFoundError('User');
     }
 
-    return user;
+    return user as LeanUser;
   }
 
   static async updateProfile(userId: string, data: UpdateProfileData): Promise<IUser> {

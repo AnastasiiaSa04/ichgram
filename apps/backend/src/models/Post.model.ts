@@ -67,9 +67,8 @@ const postSchema = new Schema<IPost>(
 postSchema.index({ createdAt: -1 });
 postSchema.index({ author: 1, createdAt: -1 });
 
-postSchema.pre(/^find/, function (this: any, next) {
+postSchema.pre(/^find/, function (this: any) {
   this.where({ isDeleted: { $ne: true } });
-  next();
 });
 
 export const Post = mongoose.model<IPost>('Post', postSchema);

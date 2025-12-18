@@ -63,9 +63,8 @@ const commentSchema = new Schema<IComment>(
 commentSchema.index({ post: 1, createdAt: -1 });
 commentSchema.index({ parentComment: 1, createdAt: 1 });
 
-commentSchema.pre(/^find/, function (this: any, next) {
+commentSchema.pre(/^find/, function (this: any) {
   this.where({ isDeleted: { $ne: true } });
-  next();
 });
 
 export const Comment = mongoose.model<IComment>('Comment', commentSchema);
