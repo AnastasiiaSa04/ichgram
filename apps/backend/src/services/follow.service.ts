@@ -4,6 +4,7 @@ import { NotFoundError, ConflictError, ForbiddenError } from '../utils/ApiError'
 import mongoose from 'mongoose';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '../models/Notification.model';
+import { io } from '../config/socket';
 
 interface UserProfile {
   _id: mongoose.Types.ObjectId;
@@ -45,6 +46,8 @@ export class FollowService {
       type: NotificationType.FOLLOW,
     });
 
+    io.emit('user:follow', { followerId, followingId });
+
     return follow;
   }
 
@@ -69,6 +72,15 @@ export class FollowService {
 
     await User.findByIdAndUpdate(followerId, { $inc: { followingCount: -1 } });
     await User.findByIdAndUpdate(followingId, { $inc: { followersCount: -1 } });
+
+    // Delete the follow notification
+    await NotificationService.deleteNotificationByAction({
+      recipient: followingId,
+      sender: followerId,
+      type: NotificationType.FOLLOW,
+    });
+
+    io.emit('user:unfollow', { followerId, followingId });
   }
 
   static async getFollowers(

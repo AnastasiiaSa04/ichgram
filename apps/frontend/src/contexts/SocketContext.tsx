@@ -99,6 +99,15 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       );
     });
 
+    newSocket.on('notification:delete', (_data: { notificationId: string }) => {
+      dispatch(
+        notificationsApi.util.invalidateTags([
+          { type: 'Notification', id: 'LIST' },
+          { type: 'Notification', id: 'UNREAD_COUNT' },
+        ])
+      );
+    });
+
     newSocket.on('comment:new', (data: { postId: string; comment: any }) => {
       dispatch(
         commentsApi.util.invalidateTags([
@@ -161,6 +170,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       newSocket.off('message:new');
       newSocket.off('message:read');
       newSocket.off('notification:new');
+      newSocket.off('notification:delete');
       newSocket.off('comment:new');
       newSocket.off('comment:update');
       newSocket.off('comment:delete');

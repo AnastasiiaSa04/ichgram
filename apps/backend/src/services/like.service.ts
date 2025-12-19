@@ -47,6 +47,14 @@ export class LikeService {
 
     await Post.findByIdAndUpdate(postId, { $inc: { likesCount: -1 } });
 
+    // Delete the like notification
+    await NotificationService.deleteNotificationByAction({
+      recipient: post.author.toString(),
+      sender: userId,
+      type: NotificationType.LIKE,
+      post: postId,
+    });
+
     io.emit('post:unlike', { postId, userId, likesCount: post.likesCount - 1 });
   }
 

@@ -17,12 +17,17 @@ interface PopulatedSender {
   avatar?: string;
 }
 
+interface PopulatedPost {
+  _id: mongoose.Types.ObjectId;
+  images: string[];
+}
+
 interface PopulatedNotification {
   _id: mongoose.Types.ObjectId;
   recipient: mongoose.Types.ObjectId;
   sender: PopulatedSender;
   type: NotificationType;
-  post?: mongoose.Types.ObjectId;
+  post?: PopulatedPost;
   comment?: mongoose.Types.ObjectId;
   isRead: boolean;
   createdAt: Date;
@@ -72,6 +77,7 @@ export class NotificationService {
       .skip(skip)
       .limit(limit)
       .populate('sender', 'username avatar')
+      .populate('post', 'images')
       .lean();
 
     const notifications: PopulatedNotification[] = rawNotifications.map((notif) => ({
@@ -83,7 +89,10 @@ export class NotificationService {
         avatar: (notif.sender as any).avatar,
       },
       type: notif.type,
-      post: notif.post,
+      post: notif.post ? {
+        _id: (notif.post as any)._id,
+        images: (notif.post as any).images,
+      } : undefined,
       comment: notif.comment,
       isRead: notif.isRead,
       createdAt: notif.createdAt,
@@ -139,5 +148,34 @@ export class NotificationService {
     }
 
     await Notification.findByIdAndDelete(notificationId);
+  }
+
+  static async deleteNotificationByAction(data: {
+    recipient: string;
+    sender: string;
+    type: NotificationType;
+    post?: string;
+    comment?: string;
+  }): Promise<void> {
+    const query: any = {
+      recipient: data.recipient,
+      sender: data.sender,
+      type: data.type,
+    };
+    
+    if (data.post) {
+      query.post = data.post;
+    }
+    if (data.comment) {
+      query.comment = data.comment;
+    }
+
+    const notification = await Notification.findOneAndDelete(query);
+    
+    if (notification) {
+      emitToUser(data.recipient, 'notification:delete', {
+        notificationId: notification._id.toString(),
+      });
+    }
   }
 }

@@ -25,6 +25,7 @@ export interface SocketEvents {
 
   // Notification events
   'notification:new': (notification: NotificationWithSender) => void;
+  'notification:delete': (data: { notificationId: string }) => void;
 
   // User events
   'user:online': (userId: string) => void;

@@ -1,10 +1,13 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
 export enum NotificationType {
-  FOLLOW = 'follow',
   LIKE = 'like',
+  UNLIKE = 'unlike',
   COMMENT = 'comment',
   COMMENT_REPLY = 'comment_reply',
+  COMMENT_LIKE = 'comment_like',
+  FOLLOW = 'follow',
+  UNFOLLOW = 'unfollow',
 }
 
 export interface INotification extends Document {
