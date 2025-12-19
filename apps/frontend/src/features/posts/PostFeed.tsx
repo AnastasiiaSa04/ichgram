@@ -10,17 +10,24 @@ export function PostFeed() {
   const [allPosts, setAllPosts] = useState<PostWithUser[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const lastFirstPostId = useRef<string | null>(null);
+  const lastTotal = useRef<number | null>(null);
 
   const { data, isLoading, isFetching } = useGetFeedQuery({ page, limit: POSTS_PER_PAGE });
 
   useEffect(() => {
     if (data?.data?.posts) {
-      const firstPostId = data.data.posts[0]?._id;
+      const currentTotal = data.data.total;
+      const totalChanged = lastTotal.current !== null && currentTotal !== lastTotal.current;
       
-      if (page === 1 && firstPostId !== lastFirstPostId.current) {
+      if (totalChanged && page !== 1) {
+        lastTotal.current = currentTotal;
+        setAllPosts([]);
+        setPage(1);
+        return;
+      }
+      
+      if (page === 1) {
         setAllPosts(data.data.posts);
-        lastFirstPostId.current = firstPostId;
       } else {
         setAllPosts((prev) => {
           const existingIds = new Set(prev.map((p) => p._id));
@@ -28,6 +35,8 @@ export function PostFeed() {
           return [...prev, ...newPosts];
         });
       }
+      
+      lastTotal.current = currentTotal;
       setTotalPages(data.data.pages);
     }
   }, [data, page]);
