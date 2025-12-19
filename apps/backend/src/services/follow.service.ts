@@ -143,4 +143,9 @@ export class FollowService {
     });
     return !!follow;
   }
+
+  static async getFollowingIds(userId: string): Promise<string[]> {
+    const follows = await Follow.find({ follower: userId }).select('following').lean();
+    return follows.map((f) => f.following.toString());
+  }
 }

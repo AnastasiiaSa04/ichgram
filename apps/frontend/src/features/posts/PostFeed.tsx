@@ -8,25 +8,35 @@ import { POSTS_PER_PAGE } from '@/lib/constants';
 export function PostFeed() {
   const [page, setPage] = useState(1);
   const [allPosts, setAllPosts] = useState<PostWithUser[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const lastFirstPostId = useRef<string | null>(null);
 
   const { data, isLoading, isFetching } = useGetFeedQuery({ page, limit: POSTS_PER_PAGE });
 
   useEffect(() => {
     if (data?.data?.posts) {
-      setAllPosts((prev) => {
-        const existingIds = new Set(prev.map((p) => p._id));
-        const newPosts = data.data.posts.filter((p) => !existingIds.has(p._id));
-        return [...prev, ...newPosts];
-      });
+      const firstPostId = data.data.posts[0]?._id;
+      
+      if (page === 1 && firstPostId !== lastFirstPostId.current) {
+        setAllPosts(data.data.posts);
+        lastFirstPostId.current = firstPostId;
+      } else {
+        setAllPosts((prev) => {
+          const existingIds = new Set(prev.map((p) => p._id));
+          const newPosts = data.data.posts.filter((p) => !existingIds.has(p._id));
+          return [...prev, ...newPosts];
+        });
+      }
+      setTotalPages(data.data.pages);
     }
-  }, [data]);
+  }, [data, page]);
 
   const handleLoadMore = useCallback(() => {
-    if (!isFetching && data?.data && page < data.data.pages) {
+    if (!isFetching && page < totalPages) {
       setPage((prev) => prev + 1);
     }
-  }, [isFetching, data, page]);
+  }, [isFetching, page, totalPages]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -53,7 +63,7 @@ export function PostFeed() {
     );
   }
 
-  const hasMore = data?.data ? page < data.data.pages : false;
+  const hasMore = page < totalPages;
 
   return (
     <div className="space-y-4">

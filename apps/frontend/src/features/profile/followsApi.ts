@@ -21,6 +21,7 @@ export const followsApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, userId) => [
         { type: 'User', id: userId },
         { type: 'Follow', id: userId },
+        { type: 'Post', id: 'FEED' },
       ],
     }),
     unfollow: builder.mutation<ApiSuccessResponse<FollowResponse>, string>({
@@ -31,6 +32,7 @@ export const followsApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, userId) => [
         { type: 'User', id: userId },
         { type: 'Follow', id: userId },
+        { type: 'Post', id: 'FEED' },
       ],
     }),
     getFollowers: builder.query<ApiSuccessResponse<PaginatedResponse<User>>, GetFollowersParams>({

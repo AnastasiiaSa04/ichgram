@@ -131,14 +131,17 @@ export class PostService {
   ): Promise<{ posts: PostWithDetails[]; total: number; pages: number }> {
     const skip = (page - 1) * limit;
 
-    const posts = (await Post.find()
+    const followingIds = await FollowService.getFollowingIds(currentUserId);
+    const feedAuthorIds = [currentUserId, ...followingIds];
+
+    const posts = (await Post.find({ author: { $in: feedAuthorIds } })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate('author', 'username avatar')
       .lean()) as unknown as PopulatedPost[];
 
-    const total = await Post.countDocuments();
+    const total = await Post.countDocuments({ author: { $in: feedAuthorIds } });
     const pages = Math.ceil(total / limit);
 
     const postsWithLikes = await Promise.all(
