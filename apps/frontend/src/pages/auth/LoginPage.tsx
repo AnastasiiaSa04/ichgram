@@ -54,7 +54,8 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Login failed',
-        description: (error as { data?: { message?: string } })?.data?.message || 'Invalid credentials',
+        description:
+          (error as { data?: { message?: string } })?.data?.message || 'Invalid credentials',
       });
     }
   };
@@ -63,11 +64,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-[#fafafa]">
       <div className="flex items-center gap-8 max-w-[935px] w-full px-4">
         <div className="hidden lg:block w-[380px] h-[580px] flex-shrink-0">
-          <img
-            src="/phones.png"
-            alt=""
-            className="w-full h-full object-contain"
-          />
+          <img src="/phones.png" alt="" className="w-full h-full object-contain" />
         </div>
 
         <div className="w-[350px] flex-shrink-0">
@@ -133,16 +130,13 @@ export default function LoginPage() {
               <div className="flex-1 h-px bg-[#dbdbdb]" />
             </div>
 
-            <Link
-              to={ROUTES.RESET_PASSWORD}
-              className="block text-center text-xs text-[#00376b]"
-            >
+            <Link to={ROUTES.RESET_PASSWORD} className="block text-center text-xs text-[#00376b]">
               Forgot password?
             </Link>
           </div>
 
           <div className="bg-white border border-[#dbdbdb] rounded-[1px] h-[63px] flex items-center justify-center text-sm">
-            <span className="text-[#262626]">Don't have an account?</span>
+            <span className="text-[#262626]">Don&apos;t have an account?</span>
             <Link to={ROUTES.SIGNUP} className="text-[#0095f6] font-semibold ml-1">
               Sign up
             </Link>

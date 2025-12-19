@@ -8,7 +8,10 @@ interface GetExplorePostsParams {
 
 export const exploreApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getExplorePosts: builder.query<ApiSuccessResponse<PaginatedResponse<PostWithUser>>, GetExplorePostsParams>({
+    getExplorePosts: builder.query<
+      ApiSuccessResponse<PaginatedResponse<PostWithUser>>,
+      GetExplorePostsParams
+    >({
       query: ({ page = 1, limit = 30 }) => `/explore?page=${page}&limit=${limit}`,
       providesTags: (result) =>
         result?.data?.data
@@ -22,5 +25,3 @@ export const exploreApi = baseApi.injectEndpoints({
 });
 
 export const { useGetExplorePostsQuery } = exploreApi;
-
-

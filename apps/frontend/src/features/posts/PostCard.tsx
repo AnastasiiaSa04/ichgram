@@ -114,7 +114,11 @@ export function PostCard({ post }: PostCardProps) {
               {!isOwnPost && (
                 <>
                   <span className="text-muted-foreground text-sm">•</span>
-                  <FollowButton userId={post.author._id} variant="link" initialIsFollowing={post.isFollowing} />
+                  <FollowButton
+                    userId={post.author._id}
+                    variant="link"
+                    initialIsFollowing={post.isFollowing}
+                  />
                 </>
               )}
             </div>
@@ -182,7 +186,10 @@ export function PostCard({ post }: PostCardProps) {
           )}
 
           {/* Add comment */}
-          <form onSubmit={handleAddComment} className="flex items-center mt-3 pt-3 border-t border-border">
+          <form
+            onSubmit={handleAddComment}
+            className="flex items-center mt-3 pt-3 border-t border-border"
+          >
             <input
               type="text"
               placeholder="Add a comment..."
@@ -203,12 +210,7 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       </article>
 
-      <PostDetailModal
-        postId={post._id}
-        open={showModal}
-        onOpenChange={setShowModal}
-      />
+      <PostDetailModal postId={post._id} open={showModal} onOpenChange={setShowModal} />
     </>
   );
 }
-

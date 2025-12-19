@@ -27,4 +27,3 @@ export const likesApi = baseApi.injectEndpoints({
 });
 
 export const { useLikePostMutation, useUnlikePostMutation } = likesApi;
-

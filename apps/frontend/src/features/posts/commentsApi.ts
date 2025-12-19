@@ -47,7 +47,10 @@ export const commentsApi = baseApi.injectEndpoints({
             ]
           : [{ type: 'Comment', id: `POST_${postId}` }],
     }),
-    addComment: builder.mutation<ApiSuccessResponse<{ comment: CommentWithUser }>, AddCommentRequest>({
+    addComment: builder.mutation<
+      ApiSuccessResponse<{ comment: CommentWithUser }>,
+      AddCommentRequest
+    >({
       query: ({ postId, content }) => ({
         url: `/comments/post/${postId}`,
         method: 'POST',
@@ -58,7 +61,10 @@ export const commentsApi = baseApi.injectEndpoints({
         { type: 'Post', id: postId },
       ],
     }),
-    deleteComment: builder.mutation<ApiSuccessResponse<null>, { commentId: string; postId: string }>({
+    deleteComment: builder.mutation<
+      ApiSuccessResponse<null>,
+      { commentId: string; postId: string }
+    >({
       query: ({ commentId }) => ({
         url: `/comments/${commentId}`,
         method: 'DELETE',
@@ -73,18 +79,17 @@ export const commentsApi = baseApi.injectEndpoints({
         url: `/comments/${commentId}/like`,
         method: 'POST',
       }),
-      invalidatesTags: (_result, _error, { postId }) => [
-        { type: 'Comment', id: `POST_${postId}` },
-      ],
+      invalidatesTags: (_result, _error, { postId }) => [{ type: 'Comment', id: `POST_${postId}` }],
     }),
-    unlikeComment: builder.mutation<ApiSuccessResponse<null>, { commentId: string; postId: string }>({
+    unlikeComment: builder.mutation<
+      ApiSuccessResponse<null>,
+      { commentId: string; postId: string }
+    >({
       query: ({ commentId }) => ({
         url: `/comments/${commentId}/like`,
         method: 'DELETE',
       }),
-      invalidatesTags: (_result, _error, { postId }) => [
-        { type: 'Comment', id: `POST_${postId}` },
-      ],
+      invalidatesTags: (_result, _error, { postId }) => [{ type: 'Comment', id: `POST_${postId}` }],
     }),
   }),
 });
@@ -96,4 +101,3 @@ export const {
   useLikeCommentMutation,
   useUnlikeCommentMutation,
 } = commentsApi;
-

@@ -1,14 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import {
-  Home,
-  Search,
-  Compass,
-  MessageCircle,
-  Heart,
-  PlusSquare,
-  Menu,
-  User,
-} from 'lucide-react';
+import { Home, Search, Compass, MessageCircle, Heart, PlusSquare, Menu, User } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import {
   toggleSearchPanel,
@@ -186,13 +177,8 @@ export function Sidebar() {
 
       {/* Menu */}
       <div className="p-2 pb-6">
-        <NavItem
-          icon={<Menu className="h-6 w-6" />}
-          label="More"
-          isCollapsed={isCollapsed}
-        />
+        <NavItem icon={<Menu className="h-6 w-6" />} label="More" isCollapsed={isCollapsed} />
       </div>
     </aside>
   );
 }
-

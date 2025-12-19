@@ -4,7 +4,7 @@ import { ROUTES } from '@/lib/constants';
 export default function NotFoundPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
-      <h1 className="text-2xl font-semibold mb-4">Sorry, this page isn't available.</h1>
+      <h1 className="text-2xl font-semibold mb-4">Sorry, this page isn&apos;t available.</h1>
       <p className="text-muted-foreground mb-6">
         The link you followed may be broken, or the page may have been removed.
       </p>
@@ -17,5 +17,3 @@ export default function NotFoundPage() {
     </div>
   );
 }
-
-

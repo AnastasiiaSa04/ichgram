@@ -19,7 +19,10 @@ const registerSchema = z.object({
     .string()
     .min(3, 'Username must be at least 3 characters')
     .max(30, 'Username must be at most 30 characters')
-    .regex(/^[a-zA-Z0-9._]+$/, 'Username can only contain letters, numbers, periods, and underscores'),
+    .regex(
+      /^[a-zA-Z0-9._]+$/,
+      'Username can only contain letters, numbers, periods, and underscores'
+    ),
   password: z
     .string()
     .min(6, 'Password must be at least 6 characters')
@@ -57,7 +60,9 @@ export default function RegisterPage() {
         navigate(ROUTES.HOME, { replace: true });
       }
     } catch (error) {
-      const apiError = error as { data?: { message?: string; errors?: Array<{ field: string; message: string }> } };
+      const apiError = error as {
+        data?: { message?: string; errors?: Array<{ field: string; message: string }> };
+      };
       toast({
         variant: 'destructive',
         title: 'Registration failed',
@@ -86,9 +91,7 @@ export default function RegisterPage() {
                 {...register('email')}
                 className="bg-[#fafafa] border-[#dbdbdb] text-xs h-[38px] rounded-[3px]"
               />
-              {errors.email && (
-                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
@@ -140,16 +143,24 @@ export default function RegisterPage() {
             <div className="text-xs text-[#737373] text-center pt-4 pb-2 leading-4">
               <p>
                 People who use our service may have uploaded your contact information to Instagram.{' '}
-                <a href="#" className="text-[#00376b]">Learn More</a>
+                <a href="#" className="text-[#00376b]">
+                  Learn More
+                </a>
               </p>
               <p className="mt-3">
                 By signing up, you agree to our{' '}
-                <a href="#" className="text-[#00376b]">Terms</a>
-                {' '},{' '}
-                <a href="#" className="text-[#00376b]">Privacy Policy</a>
-                {' '}and{' '}
-                <a href="#" className="text-[#00376b]">Cookies Policy</a>
-                {' '}.
+                <a href="#" className="text-[#00376b]">
+                  Terms
+                </a>{' '}
+                ,{' '}
+                <a href="#" className="text-[#00376b]">
+                  Privacy Policy
+                </a>{' '}
+                and{' '}
+                <a href="#" className="text-[#00376b]">
+                  Cookies Policy
+                </a>{' '}
+                .
               </p>
             </div>
 

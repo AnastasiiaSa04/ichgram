@@ -74,15 +74,10 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
 
         {/* Bio */}
         <div>
-          {profile.fullName && (
-            <p className="font-semibold">{profile.fullName}</p>
-          )}
-          {profile.bio && (
-            <p className="whitespace-pre-wrap">{profile.bio}</p>
-          )}
+          {profile.fullName && <p className="font-semibold">{profile.fullName}</p>}
+          {profile.bio && <p className="whitespace-pre-wrap">{profile.bio}</p>}
         </div>
       </div>
     </div>
   );
 }
-

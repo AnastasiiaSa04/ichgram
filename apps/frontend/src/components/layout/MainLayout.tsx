@@ -16,20 +16,15 @@ export function MainLayout() {
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      
+
       {/* Search Panel */}
       <SearchPanel isOpen={isSearchPanelOpen} />
-      
+
       {/* Notification Panel */}
       <NotificationPanel isOpen={isNotificationPanelOpen} />
-      
+
       {/* Main Content */}
-      <main
-        className={cn(
-          'transition-all duration-300',
-          isPanelOpen ? 'ml-[72px]' : 'ml-[245px]'
-        )}
-      >
+      <main className={cn('transition-all duration-300', isPanelOpen ? 'ml-[72px]' : 'ml-[245px]')}>
         <div className="mx-auto max-w-[935px] px-4 py-8">
           <Outlet />
         </div>
@@ -40,5 +35,3 @@ export function MainLayout() {
     </div>
   );
 }
-
-

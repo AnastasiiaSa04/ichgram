@@ -116,9 +116,7 @@ export function NotificationPanel({ isOpen }: NotificationPanelProps) {
                       src={getImageUrl(notification.sender.avatar)}
                       alt={notification.sender.username}
                     />
-                    <AvatarFallback>
-                      {notification.sender.username[0].toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarFallback>{notification.sender.username[0].toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm">
@@ -129,9 +127,7 @@ export function NotificationPanel({ isOpen }: NotificationPanelProps) {
                       </span>
                     </p>
                   </div>
-                  <div className="flex-shrink-0">
-                    {getNotificationIcon(notification.type)}
-                  </div>
+                  <div className="flex-shrink-0">{getNotificationIcon(notification.type)}</div>
                 </Link>
               ))}
             </div>
@@ -141,4 +137,3 @@ export function NotificationPanel({ isOpen }: NotificationPanelProps) {
     </div>
   );
 }
-

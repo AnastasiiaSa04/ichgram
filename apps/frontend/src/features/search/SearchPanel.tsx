@@ -90,9 +90,7 @@ export function SearchPanel({ isOpen }: SearchPanelProps) {
           )}
 
           {!isLoading && !isFetching && query.length >= 2 && users.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              No results found.
-            </div>
+            <div className="text-center py-8 text-muted-foreground">No results found.</div>
           )}
 
           {!isLoading && !isFetching && users.length > 0 && (
@@ -122,9 +120,7 @@ export function SearchPanel({ isOpen }: SearchPanelProps) {
           {!query && (
             <div className="px-6 py-4">
               <h3 className="font-semibold mb-4">Recent</h3>
-              <p className="text-sm text-muted-foreground text-center py-8">
-                No recent searches.
-              </p>
+              <p className="text-sm text-muted-foreground text-center py-8">No recent searches.</p>
             </div>
           )}
         </div>
@@ -132,5 +128,3 @@ export function SearchPanel({ isOpen }: SearchPanelProps) {
     </div>
   );
 }
-
-

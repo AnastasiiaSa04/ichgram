@@ -23,7 +23,7 @@ export default function ProfilePage() {
       <div className="text-center py-20">
         <h2 className="text-xl font-semibold mb-2">User not found</h2>
         <p className="text-muted-foreground">
-          The user you're looking for doesn't exist.
+          The user you&apos;re looking for doesn&apos;t exist.
         </p>
       </div>
     );
@@ -38,4 +38,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-

@@ -41,7 +41,8 @@ export default function ResetPasswordPage() {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: (error as { data?: { message?: string } })?.data?.message || 'Something went wrong',
+        description:
+          (error as { data?: { message?: string } })?.data?.message || 'Something went wrong',
       });
     }
   };
@@ -57,14 +58,11 @@ export default function ResetPasswordPage() {
         <div className="flex justify-center pt-11">
           <div className="bg-white border border-gray-200 rounded-[3px] w-[390px] text-center">
             <div className="p-10">
-              <img
-                src="/lock-icon.svg"
-                alt="Lock"
-                className="w-24 h-24 mx-auto mb-4"
-              />
+              <img src="/lock-icon.svg" alt="Lock" className="w-24 h-24 mx-auto mb-4" />
               <h2 className="font-semibold text-base mb-2">Email Sent</h2>
               <p className="text-sm text-gray-500 mb-4 leading-[18px]">
-                We sent an email to {getValues('emailOrUsername')} with a link to reset your password.
+                We sent an email to {getValues('emailOrUsername')} with a link to reset your
+                password.
               </p>
             </div>
             <div className="bg-gray-50 border-t border-gray-200 py-3">
@@ -88,16 +86,11 @@ export default function ResetPasswordPage() {
       <div className="flex justify-center pt-11">
         <div className="bg-white border border-gray-200 rounded-[3px] w-[390px]">
           <div className="px-11 pt-6 pb-0">
-            <img
-              src="/lock-icon.svg"
-              alt="Lock"
-              className="w-24 h-24 mx-auto"
-            />
-            <h2 className="font-semibold text-base text-center mt-3">
-              Trouble logging in?
-            </h2>
+            <img src="/lock-icon.svg" alt="Lock" className="w-24 h-24 mx-auto" />
+            <h2 className="font-semibold text-base text-center mt-3">Trouble logging in?</h2>
             <p className="text-sm text-gray-500 text-center mt-4 leading-[18px]">
-              Enter your email, phone, or username and we'll send you a link to get back into your account.
+              Enter your email, phone, or username and we&apos;ll send you a link to get back into
+              your account.
             </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">

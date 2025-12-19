@@ -11,7 +11,12 @@ interface FollowButtonProps {
   initialIsFollowing?: boolean;
 }
 
-export function FollowButton({ userId, variant = 'default', className, initialIsFollowing = false }: FollowButtonProps) {
+export function FollowButton({
+  userId,
+  variant = 'default',
+  className,
+  initialIsFollowing = false,
+}: FollowButtonProps) {
   const { user } = useAppSelector((state) => state.auth);
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
 
@@ -73,4 +78,3 @@ export function FollowButton({ userId, variant = 'default', className, initialIs
     </Button>
   );
 }
-

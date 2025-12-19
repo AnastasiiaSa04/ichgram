@@ -36,12 +36,16 @@ export const followsApi = baseApi.injectEndpoints({
     getFollowers: builder.query<ApiSuccessResponse<PaginatedResponse<User>>, GetFollowersParams>({
       query: ({ userId, page = 1, limit = 20 }) =>
         `/follows/${userId}/followers?page=${page}&limit=${limit}`,
-      providesTags: (_result, _error, { userId }) => [{ type: 'Follow', id: `followers_${userId}` }],
+      providesTags: (_result, _error, { userId }) => [
+        { type: 'Follow', id: `followers_${userId}` },
+      ],
     }),
     getFollowing: builder.query<ApiSuccessResponse<PaginatedResponse<User>>, GetFollowersParams>({
       query: ({ userId, page = 1, limit = 20 }) =>
         `/follows/${userId}/following?page=${page}&limit=${limit}`,
-      providesTags: (_result, _error, { userId }) => [{ type: 'Follow', id: `following_${userId}` }],
+      providesTags: (_result, _error, { userId }) => [
+        { type: 'Follow', id: `following_${userId}` },
+      ],
     }),
   }),
 });
@@ -52,4 +56,3 @@ export const {
   useGetFollowersQuery,
   useGetFollowingQuery,
 } = followsApi;
-

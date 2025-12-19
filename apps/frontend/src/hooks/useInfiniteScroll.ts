@@ -56,5 +56,3 @@ export function useInfiniteScroll({
 
   return { loadMoreRef: setLoadMoreRef };
 }
-
-

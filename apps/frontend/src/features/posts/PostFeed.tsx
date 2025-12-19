@@ -69,7 +69,7 @@ export function PostFeed() {
 
       {!hasMore && allPosts.length > 0 && (
         <div className="text-center py-8 text-muted-foreground">
-          <p className="text-sm">You've seen all the updates</p>
+          <p className="text-sm">You&apos;ve seen all the updates</p>
           <p className="text-xs mt-1">You have viewed all new publications for the last 3 days</p>
         </div>
       )}
@@ -78,4 +78,3 @@ export function PostFeed() {
     </div>
   );
 }
-

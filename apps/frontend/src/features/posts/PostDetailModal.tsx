@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, MoreHorizontal, X } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogClose,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogClose } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useGetPostQuery } from './postsApi';
-import { useGetCommentsQuery, useAddCommentMutation, useLikeCommentMutation, useUnlikeCommentMutation } from './commentsApi';
+import {
+  useGetCommentsQuery,
+  useAddCommentMutation,
+  useLikeCommentMutation,
+  useUnlikeCommentMutation,
+} from './commentsApi';
 import { useLikePostMutation, useUnlikePostMutation } from './likesApi';
 import { ROUTES } from '@/lib/constants';
 import { formatRelativeTime, getImageUrl, formatNumber, cn } from '@/lib/utils';
@@ -146,7 +147,10 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
                     </Avatar>
                     <div>
                       <p className="text-sm">
-                        <Link to={ROUTES.PROFILE(post.author.username)} className="font-semibold mr-1">
+                        <Link
+                          to={ROUTES.PROFILE(post.author.username)}
+                          className="font-semibold mr-1"
+                        >
                           {post.author.username}
                         </Link>
                         {post.caption}
@@ -173,7 +177,10 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
                       </Link>
                       <div className="flex-1">
                         <p className="text-sm">
-                          <Link to={ROUTES.PROFILE(c.author.username)} className="font-semibold mr-1">
+                          <Link
+                            to={ROUTES.PROFILE(c.author.username)}
+                            className="font-semibold mr-1"
+                          >
                             {c.author.username}
                           </Link>
                           {c.content}
@@ -228,17 +235,10 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
                     className="hover:opacity-70"
                     aria-label={isLiked ? 'Unlike' : 'Like'}
                   >
-                    <Heart
-                      className={cn(
-                        'h-6 w-6',
-                        isLiked && 'fill-red-500 text-red-500'
-                      )}
-                    />
+                    <Heart className={cn('h-6 w-6', isLiked && 'fill-red-500 text-red-500')} />
                   </button>
                 </div>
-                <p className="font-semibold text-sm mb-1">
-                  {formatNumber(likesCount)} likes
-                </p>
+                <p className="font-semibold text-sm mb-1">{formatNumber(likesCount)} likes</p>
                 <p className="text-xs text-muted-foreground uppercase">
                   {formatRelativeTime(post.createdAt)}
                 </p>
@@ -273,4 +273,3 @@ export function PostDetailModal({ postId, open, onOpenChange }: PostDetailModalP
     </Dialog>
   );
 }
-

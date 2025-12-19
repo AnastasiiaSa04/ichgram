@@ -1,5 +1,10 @@
 import { baseApi } from '@/app/api/baseApi';
-import type { User, UserProfile, ApiSuccessResponse, PaginatedResponse } from '@ichgram/shared-types';
+import type {
+  User,
+  UserProfile,
+  ApiSuccessResponse,
+  PaginatedResponse,
+} from '@ichgram/shared-types';
 
 interface UpdateProfileRequest {
   fullName?: string;
@@ -35,7 +40,8 @@ export const usersApi = baseApi.injectEndpoints({
       invalidatesTags: ['User'],
     }),
     searchUsers: builder.query<ApiSuccessResponse<PaginatedResponse<User>>, SearchUsersParams>({
-      query: ({ query, limit = 20 }) => `/users/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      query: ({ query, limit = 20 }) =>
+        `/users/search?q=${encodeURIComponent(query)}&limit=${limit}`,
     }),
   }),
 });
@@ -47,4 +53,3 @@ export const {
   useSearchUsersQuery,
   useLazySearchUsersQuery,
 } = usersApi;
-

@@ -32,7 +32,7 @@ export function ExploreGrid() {
       <div className="grid grid-cols-3 gap-1">
         {posts.map((post, index) => {
           const isLarge = index % 10 === 2 || index % 10 === 5;
-          
+
           return (
             <button
               key={post._id}
@@ -73,4 +73,3 @@ export function ExploreGrid() {
     </>
   );
 }
-

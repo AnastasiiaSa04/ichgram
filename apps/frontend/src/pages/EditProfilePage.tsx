@@ -18,7 +18,10 @@ const editProfileSchema = z.object({
     .string()
     .min(3, 'Username must be at least 3 characters')
     .max(30, 'Username must be at most 30 characters')
-    .regex(/^[a-zA-Z0-9._]+$/, 'Username can only contain letters, numbers, periods, and underscores'),
+    .regex(
+      /^[a-zA-Z0-9._]+$/,
+      'Username can only contain letters, numbers, periods, and underscores'
+    ),
   website: z.string().url('Invalid URL').optional().or(z.literal('')),
   bio: z.string().max(150, 'Bio must be at most 150 characters').optional(),
 });
@@ -60,7 +63,8 @@ export default function EditProfilePage() {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: (error as { data?: { message?: string } })?.data?.message || 'Something went wrong',
+        description:
+          (error as { data?: { message?: string } })?.data?.message || 'Something went wrong',
       });
     }
   };
@@ -134,9 +138,7 @@ export default function EditProfilePage() {
               {bioValue.length} / 150
             </span>
           </div>
-          {errors.bio && (
-            <p className="text-xs text-destructive mt-1">{errors.bio.message}</p>
-          )}
+          {errors.bio && <p className="text-xs text-destructive mt-1">{errors.bio.message}</p>}
         </div>
 
         <Button

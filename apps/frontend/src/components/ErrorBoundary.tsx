@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
           </div>
           <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
           <p className="text-muted-foreground mb-4">
-            We're sorry, but something unexpected happened.
+            We&apos;re sorry, but something unexpected happened.
           </p>
           <Button onClick={this.handleRetry}>Try again</Button>
         </div>
@@ -63,5 +63,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
-

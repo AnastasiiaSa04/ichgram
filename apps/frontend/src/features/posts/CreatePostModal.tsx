@@ -1,11 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { ImagePlus, ArrowLeft } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import { closeCreatePostModal } from '@/features/ui/uiSlice';
@@ -63,16 +58,19 @@ export function CreatePostModal({ open }: { open: boolean }) {
     setStep('caption');
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      const fakeEvent = {
-        target: { files: [file] },
-      } as unknown as React.ChangeEvent<HTMLInputElement>;
-      handleFileSelect(fakeEvent);
-    }
-  }, [handleFileSelect]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files?.[0];
+      if (file) {
+        const fakeEvent = {
+          target: { files: [file] },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        handleFileSelect(fakeEvent);
+      }
+    },
+    [handleFileSelect]
+  );
 
   const handleSubmit = async () => {
     if (!selectedFile) return;
@@ -109,9 +107,7 @@ export function CreatePostModal({ open }: { open: boolean }) {
                 <ArrowLeft className="h-5 w-5" />
               </button>
             )}
-            <DialogTitle className="flex-1 text-center font-semibold">
-              Create new post
-            </DialogTitle>
+            <DialogTitle className="flex-1 text-center font-semibold">Create new post</DialogTitle>
             {step === 'caption' && (
               <Button
                 variant="ghost"
@@ -140,19 +136,13 @@ export function CreatePostModal({ open }: { open: boolean }) {
               onChange={handleFileSelect}
               className="hidden"
             />
-            <Button onClick={() => fileInputRef.current?.click()}>
-              Select from computer
-            </Button>
+            <Button onClick={() => fileInputRef.current?.click()}>Select from computer</Button>
           </div>
         ) : (
           <div className="flex flex-col">
             {preview && (
               <div className="aspect-square relative">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
+                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
               </div>
             )}
             <div className="p-4 border-t border-border">
@@ -180,4 +170,3 @@ export function CreatePostModal({ open }: { open: boolean }) {
     </Dialog>
   );
 }
-

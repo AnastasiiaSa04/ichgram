@@ -8,11 +8,7 @@ interface LogoProps {
 export function Logo({ className, collapsed = false }: LogoProps) {
   if (collapsed) {
     return (
-      <img
-        src="/logo.png"
-        alt="Ichgram"
-        className={cn('h-8 w-auto object-contain', className)}
-      />
+      <img src="/logo.png" alt="Ichgram" className={cn('h-8 w-auto object-contain', className)} />
     );
   }
 

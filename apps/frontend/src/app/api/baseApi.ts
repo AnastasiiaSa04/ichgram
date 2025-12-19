@@ -1,4 +1,10 @@
-import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import {
+  createApi,
+  fetchBaseQuery,
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+} from '@reduxjs/toolkit/query/react';
 import type { RootState } from '../store';
 import { API_URL, STORAGE_KEYS } from '@/lib/constants';
 import { logout, setCredentials } from '@/features/auth/authSlice';
@@ -32,7 +38,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
   if (result.error && result.error.status === 401) {
     // Try to refresh the token
     const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-    
+
     if (refreshToken) {
       const refreshResult = await baseQuery(
         {
@@ -73,5 +79,3 @@ export const baseApi = createApi({
   tagTypes: ['User', 'Post', 'Comment', 'Notification', 'Message', 'Conversation', 'Follow'],
   endpoints: () => ({}),
 });
-
-

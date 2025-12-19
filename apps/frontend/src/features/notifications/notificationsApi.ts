@@ -15,12 +15,18 @@ interface NotificationsResponse {
 
 export const notificationsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getNotifications: builder.query<ApiSuccessResponse<NotificationsResponse>, GetNotificationsParams>({
+    getNotifications: builder.query<
+      ApiSuccessResponse<NotificationsResponse>,
+      GetNotificationsParams
+    >({
       query: ({ page = 1, limit = 20 }) => `/notifications?page=${page}&limit=${limit}`,
       providesTags: (result) =>
         result?.data?.notifications
           ? [
-              ...result.data.notifications.map(({ _id }) => ({ type: 'Notification' as const, id: _id })),
+              ...result.data.notifications.map(({ _id }) => ({
+                type: 'Notification' as const,
+                id: _id,
+              })),
               { type: 'Notification', id: 'LIST' },
             ]
           : [{ type: 'Notification', id: 'LIST' }],
@@ -44,7 +50,10 @@ export const notificationsApi = baseApi.injectEndpoints({
         url: '/notifications/read-all',
         method: 'PUT',
       }),
-      invalidatesTags: [{ type: 'Notification', id: 'LIST' }, { type: 'Notification', id: 'UNREAD_COUNT' }],
+      invalidatesTags: [
+        { type: 'Notification', id: 'LIST' },
+        { type: 'Notification', id: 'UNREAD_COUNT' },
+      ],
     }),
   }),
 });
@@ -55,5 +64,3 @@ export const {
   useMarkAsReadMutation,
   useMarkAllAsReadMutation,
 } = notificationsApi;
-
-
