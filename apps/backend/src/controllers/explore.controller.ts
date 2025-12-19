@@ -14,12 +14,9 @@ export class ExploreController {
 
     new ApiResponse(200, {
       data: result.posts,
-      pagination: {
-        page: Number(page) || 1,
-        limit: Number(limit) || 30,
-        total: result.total,
-        pages: result.pages,
-      },
+      total: result.total,
+      page: Number(page) || 1,
+      pages: result.pages,
     }, 'Explore posts retrieved successfully').send(res);
   });
 
