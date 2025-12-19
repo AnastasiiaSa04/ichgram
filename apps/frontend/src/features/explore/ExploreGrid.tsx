@@ -10,12 +10,14 @@ export function ExploreGrid() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [allPosts, setAllPosts] = useState<PostWithUser[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading, isFetching } = useGetExplorePostsQuery({ page, limit: 30 });
 
   useEffect(() => {
     if (data?.data?.data) {
+      setTotalPages(data.data.pages);
       setAllPosts((prev) => {
         const existingIds = new Set(prev.map((p) => p._id));
         const newPosts = data.data.data.filter((p) => !existingIds.has(p._id));
@@ -25,10 +27,10 @@ export function ExploreGrid() {
   }, [data]);
 
   const handleLoadMore = useCallback(() => {
-    if (!isFetching && data?.data && page < data.data.pages) {
+    if (!isFetching && page < totalPages) {
       setPage((prev) => prev + 1);
     }
-  }, [isFetching, data, page]);
+  }, [isFetching, page, totalPages]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -65,7 +67,7 @@ export function ExploreGrid() {
     );
   }
 
-  const hasMore = data?.data ? page < data.data.pages : false;
+  const hasMore = page < totalPages;
 
   return (
     <>
