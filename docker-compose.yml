@@ -81,6 +81,29 @@ services:
       - ./scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
     entrypoint: [ "bash", "/docker-entrypoint-initdb.d/mongo-init.sh" ]
 
+  # Database Seeder
+  seeder:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+      target: development
+    container_name: ichgram-seeder
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongo1:27017,mongo2:27018,mongo3:27019/ichgram?replicaSet=rs0
+      - UPLOAD_PATH=/app/apps/backend/uploads
+    volumes:
+      - ./apps/backend/src:/app/apps/backend/src
+      - ./apps/backend/uploads:/app/apps/backend/uploads
+      - ./apps/backend/tsconfig.json:/app/apps/backend/tsconfig.json
+      - ./packages/shared-types/src:/app/packages/shared-types/src
+    networks:
+      - ichgram-network
+    command: npm run seed
+
   # Backend API
   backend:
     build:
@@ -89,7 +112,7 @@ services:
       target: development
     container_name: ichgram-backend
     depends_on:
-      mongo-init:
+      seeder:
         condition: service_completed_successfully
     ports:
       - "5001:5001"

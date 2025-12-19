@@ -279,7 +279,7 @@ async function seed() {
 
     const posts = [];
     for (const user of createdUsers) {
-      const numPosts = randomInt(5, 12);
+      const numPosts = randomInt(15, 120);
       for (let i = 0; i < numPosts; i++) {
         const numImages = randomInt(1, 4);
         const images = Array.from({ length: numImages }, () => randomItem(SAMPLE_IMAGES));

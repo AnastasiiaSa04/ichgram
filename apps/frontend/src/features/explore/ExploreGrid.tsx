@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Heart, MessageCircle } from 'lucide-react';
+import type { PostWithUser } from '@ichgram/shared-types';
 import { useGetExplorePostsQuery } from './exploreApi';
 import { PostDetailModal } from '@/features/posts/PostDetailModal';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -7,9 +8,46 @@ import { getImageUrl, formatNumber } from '@/lib/utils';
 
 export function ExploreGrid() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-  const { data, isLoading } = useGetExplorePostsQuery({ limit: 30 });
+  const [page, setPage] = useState(1);
+  const [allPosts, setAllPosts] = useState<PostWithUser[]>([]);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  if (isLoading) {
+  const { data, isLoading, isFetching } = useGetExplorePostsQuery({ page, limit: 30 });
+
+  useEffect(() => {
+    if (data?.data?.data) {
+      setAllPosts((prev) => {
+        const existingIds = new Set(prev.map((p) => p._id));
+        const newPosts = data.data.data.filter((p) => !existingIds.has(p._id));
+        return [...prev, ...newPosts];
+      });
+    }
+  }, [data]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!isFetching && data?.data && page < data.data.pages) {
+      setPage((prev) => prev + 1);
+    }
+  }, [isFetching, data, page]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [handleLoadMore]);
+
+  if (isLoading && allPosts.length === 0) {
     return (
       <div className="flex justify-center py-20">
         <LoadingSpinner size="lg" />
@@ -17,7 +55,7 @@ export function ExploreGrid() {
     );
   }
 
-  const posts = data?.data?.data || [];
+  const posts = allPosts;
 
   if (posts.length === 0) {
     return (
@@ -26,6 +64,8 @@ export function ExploreGrid() {
       </div>
     );
   }
+
+  const hasMore = data?.data ? page < data.data.pages : false;
 
   return (
     <>
@@ -62,7 +102,20 @@ export function ExploreGrid() {
         })}
       </div>
 
-      {/* Post Detail Modal */}
+      {isFetching && (
+        <div className="flex justify-center py-8">
+          <LoadingSpinner />
+        </div>
+      )}
+
+      {!hasMore && posts.length > 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          <p className="text-sm">You&apos;ve explored all posts</p>
+        </div>
+      )}
+
+      <div ref={loadMoreRef} className="h-4" />
+
       {selectedPostId && (
         <PostDetailModal
           postId={selectedPostId}
